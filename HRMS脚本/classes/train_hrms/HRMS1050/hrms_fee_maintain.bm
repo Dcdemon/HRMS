@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="insert">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_fee_pkg.insert_new_fee(p_fee_code => ${@fee_code}, 
+                    						    p_start_date => ${@start_date}, 
+                    						    p_end_date => ${@end_date}, 
+                    						    p_fee_item_code => ${@fee_item_code}, 
+                    						    p_fee_source_code => ${@fee_source_code}, 
+                    						    p_fee_house_id => ${@fee_house_id}, 
+                    						    p_fee_cost => ${@fee_cost}, 
+                    						    p_currency_code => ${@currency_code}, 
+                    						    p_remark => ${@remark}, 
+                    						    p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

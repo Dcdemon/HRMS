@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="HRMS1070_verification_maintain_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1070/hrms_verification_maintain.screen"/>
+        <script><![CDATA[
+    		function HRMS1070_openNewMaintainScreen(){
+    			new Aurora.Window({
+                    id: 'HRMS1070_new_verification_maintain_screen',
+                    url: $('HRMS1070_verification_maintain_screen').getUrl(),
+                    fullScreen: true
+                });
+    		}
+    		
+    		function HRMS1070_resetQuery() {
+                $('HRMS1070_verification_main_query_ds').reset();
+        	}
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1070_verification_main_fee_item_ds" lookupCode="HRMS_CODING_VALUE_FEE_ITEM"/>
+            <a:dataSet id="HRMS1070_verification_main_receipt_source_ds" lookupCode="HRMS_CODING_VALUE_RECEIPT_SOURCE"/>
+            <a:dataSet id="HRMS1070_verification_main_query_ds">
+                <a:fields>
+                    <a:field name="verification_code" prompt="HRMS_VERIFICATION.VERIFICATION_CODE"/>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="bond_item" displayField="code_value_name" options="HRMS1070_verification_main_fee_item_ds" prompt="HRMS_VERIFICATION.BOND_ITEM" returnField="bond_item_code" valueField="code_value"/>
+                    <a:field name="creation_date_from" prompt="HRMS_VERIFICATION.VERIFICATION_DATE_FROM"/>
+                    <a:field name="creation_date_to" prompt="HRMS_VERIFICATION.VERIFICATION_DATE_TO"/>
+                    <a:field name="verification_source" displayField="code_value_name" options="HRMS1070_verification_main_receipt_source_ds" prompt="HRMS_VERIFICATION.VERIFICATION_SOURCE" returnField="verification_source_code" valueField="code_value"/>
+                    <a:field name="staff_name" lovHeight="500" lovService="train_hrms.HRMS1070.hrms_query_staff_name_lov" lovWidth="500" prompt="HRMS_VERIFICATION.VERIFICATION_OBJECT">
+                        <a:mapping>
+                            <a:map from="staff_name" to="staff_name"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1070_verification_main_result_ds" autoQuery="true" model="train_hrms.HRMS1070.hrms_verification_main" queryDataSet="HRMS1070_verification_main_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="verification_id"/>
+                    <a:field name="staff_id"/>
+                    <a:field name="verification_code" prompt="HRMS_VERIFICATION.VERIFICATION_CODE"/>
+                    <a:field name="creation_date" prompt="HRMS_VERIFICATION.VERIFICATION_DATE"/>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="bond_item" prompt="HRMS_VERIFICATION.BOND_ITEM"/>
+                    <a:field name="verification_amount" prompt="HRMS_VERIFICATION.VERIFICATION_AMOUNT"/>
+                    <a:field name="verification_source" prompt="HRMS_VERIFICATION.VERIFICATION_SOURCE"/>
+                    <a:field name="staff_name" prompt="HRMS_VERIFICATION.VERIFICATION_OBJECT"/>
+                    <a:field name="receipt_code" prompt="HRMS_VERIFICATION.RECEIPT_CODE"/>
+                    <a:field name="currency" prompt="HRMS_RECEIPT.CURRENCY_CODE"/>
+                    <a:field name="remark" prompt="HRMS_HOUSE.REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton bind="HRMS1070_verification_main_grid" type="excel" width="80"/>
+                <a:gridButton click="HRMS1070_openNewMaintainScreen" text="HRMS_HOUSE.ADD" width="80"/>
+                <a:gridButton click="HRMS1070_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1070_verification_main_query_ds" resultTarget="HRMS1070_verification_main_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="verification_code" bindTarget="HRMS1070_verification_main_query_ds"/>
+                        <a:textField name="contract_code" bindTarget="HRMS1070_verification_main_query_ds"/>
+                        <a:comboBox name="bond_item" bindTarget="HRMS1070_verification_main_query_ds"/>
+                        <a:comboBox name="verification_source" bindTarget="HRMS1070_verification_main_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:lov name="staff_name" bindTarget="HRMS1070_verification_main_query_ds"/>
+                        <a:datePicker name="creation_date_from" bindTarget="HRMS1070_verification_main_query_ds"/>
+                        <a:datePicker name="creation_date_to" bindTarget="HRMS1070_verification_main_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1070_verification_main_grid" bindTarget="HRMS1070_verification_main_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="verification_id" hidden="true"/>
+                    <a:column name="staff_id" hidden="true"/>
+                    <a:column name="verification_code" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="creation_date" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="contract_code" align="center" maxAdjustWidth="130" width="130"/>
+                    <a:column name="bond_item" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="verification_amount" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="verification_source" align="center" maxAdjustWidth="90" width="90"/>
+                    <a:column name="staff_name" align="center" maxAdjustWidth="90" width="90"/>
+                    <a:column name="receipt_code" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="currency" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="remark" align="center" maxAdjustWidth="324" width="324"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="HRMS1060_receipt_maintain_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1060/hrms_receipt_maintain.screen"/>
+        <script><![CDATA[
+    		function HRMS1060_openNewMaintainScreen(){
+    			new Aurora.Window({
+                    id: 'HRMS1060_new_receipt_maintain_screen',
+                    url: $('HRMS1060_receipt_maintain_screen').getUrl(),
+                    fullScreen: true
+                });
+    		}
+    		
+    		function HRMS1060_resetQuery() {
+                $('HRMS1060_receipt_main_query_ds').reset();
+        	}
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1060_receipt_main_receipt_method_ds" lookupCode="HRMS_CODING_VALUE_RECEIPT_METHOD"/>
+            <a:dataSet id="HRMS1060_receipt_main_receipt_source_ds" lookupCode="HRMS_CODING_VALUE_RECEIPT_SOURCE"/>
+            <a:dataSet id="HRMS1060_receipt_main_query_ds">
+                <a:fields>
+                    <a:field name="receipt_code" prompt="HRMS_RECEIPT.RECEIPT_CODE"/>
+                    <a:field name="receipt_source" displayField="code_value_name" options="HRMS1060_receipt_main_receipt_source_ds" prompt="HRMS_RECEIPT.RECEIPT_SOURCE" returnField="receipt_source_code" valueField="code_value"/>
+                    <a:field name="staff_name" lovHeight="510" lovService="train_hrms.HRMS1040.hrms_query_job_number_lov" lovWidth="500" prompt="HRMS_RECEIPT.RECEIPT_OBJECT">
+                        <a:mapping>
+                            <a:map from="staff_name" to="staff_name"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="receipt_method" displayField="code_value_name" options="HRMS1060_receipt_main_receipt_method_ds" prompt="HRMS_RECEIPT.RECEIPT_METHOD" returnField="receipt_method_code" valueField="code_value"/>
+                    <a:field name="creation_date_from" prompt="HRMS_RECEIPT.RECEIPT_DATE_FROM"/>
+                    <a:field name="creation_date_to" prompt="HRMS_RECEIPT.RECEIPT_DATE_TO"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1060_receipt_main_result_ds" loadData="true" model="train_hrms.HRMS1060.hrms_receipt_main" queryDataSet="HRMS1060_receipt_main_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="receipt_id"/>
+                    <a:field name="staff_id"/>
+                    <a:field name="receipt_code" prompt="HRMS_RECEIPT.RECEIPT_CODE"/>
+                    <a:field name="creation_date" prompt="HRMS_RECEIPT.RECEIPT_DATE"/>
+                    <a:field name="receipt_source" prompt="HRMS_RECEIPT.RECEIPT_SOURCE"/>
+                    <a:field name="staff_name" prompt="HRMS_RECEIPT.RECEIPT_OBJECT"/>
+                    <a:field name="receipt_method" prompt="HRMS_RECEIPT.RECEIPT_METHOD"/>
+                    <a:field name="receipt_amount" prompt="HRMS_RECEIPT.RECEIPT_AMOUNT"/>
+                    <a:field name="write_off_amount" prompt="HRMS_RECEIPT.WRITE_OFF_AMOUNT"/>
+                    <a:field name="currency" prompt="HRMS_RECEIPT.CURRENCY_CODE"/>
+                    <a:field name="remark" prompt="HRMS_HOUSE.REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton bind="HRMS1060_receipt_main_grid" type="excel" width="80"/>
+                <a:gridButton click="HRMS1060_openNewMaintainScreen" text="HRMS_HOUSE.ADD" width="80"/>
+                <a:gridButton click="HRMS1060_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1060_receipt_main_query_ds" resultTarget="HRMS1060_receipt_main_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="receipt_code" bindTarget="HRMS1060_receipt_main_query_ds"/>
+                        <a:comboBox name="receipt_source" bindTarget="HRMS1060_receipt_main_query_ds"/>
+                        <a:lov name="staff_name" bindTarget="HRMS1060_receipt_main_query_ds"/>
+                        <a:comboBox name="receipt_method" bindTarget="HRMS1060_receipt_main_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:datePicker name="creation_date_from" bindTarget="HRMS1060_receipt_main_query_ds"/>
+                        <a:datePicker name="creation_date_to" bindTarget="HRMS1060_receipt_main_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1060_receipt_main_grid" bindTarget="HRMS1060_receipt_main_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="receipt_id" hidden="true"/>
+                    <a:column name="staff_id" hidden="true"/>
+                    <a:column name="receipt_code" align="center" maxAdjustWidth="180" width="180"/>
+                    <a:column name="creation_date" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="receipt_source" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="staff_name" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="receipt_method" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="receipt_amount" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="write_off_amount" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="currency" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="remark" align="center" maxAdjustWidth="294" width="294"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

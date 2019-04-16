@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.Dai
+    $Date: 2017-8-17 
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    gld_gl_entry_import_interface t
+                WHERE
+                    t.batch_id    = ${@batch_id} AND
+                    t.import_flag = 'Y'
+                ORDER BY
+                    t.line_number
+            ]]></bm:query-sql>
+        </bm:operation>
+        <bm:operation name="insert">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    gld_gl_entry_interface_pkg.insert_interface(p_header_id    => ${@header_id},
+                                                               p_batch_id     => ${@batch_id},
+                                                               p_user_id      => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="delete">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    gld_gl_entry_interface_pkg.delete_interface(p_batch_id => ${@batch_id},
+                                                               p_user_id  => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    gld_gl_entry_interface_pkg.load_entry(p_batch_id => ${@batch_id},
+                                                           p_user_id  => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="line_number"/>
+        <bm:field name="gl_entry_code"/>
+        <bm:field name="create_date"/>
+        <bm:field name="period"/>
+        <bm:field name="attachement"/>
+        <bm:field name="currency_code"/>
+        <bm:field name="exchange_rate_type"/>
+        <bm:field name="exchange_rate"/>
+        <bm:field name="head_summary"/>
+        <bm:field name="line_summary"/>
+        <bm:field name="account_id"/>
+        <bm:field name="dr_amount"/>
+        <bm:field name="cr_amount"/>
+    </bm:fields>
+</bm:model>

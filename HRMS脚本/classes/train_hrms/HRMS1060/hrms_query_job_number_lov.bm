@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        check_in_staff_id,
+                        job_number,
+                        staff_name,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_SEX', p_code_value => sex_code) AS sex,                               
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_DEPARTMENT', p_code_value => department_code) AS department,          
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BASE_LOCATION', p_code_value => base_location_code) AS base_location, 
+                        tel,
+                        email_address,
+                        check_in_status_code
+                    FROM
+                        hrms_check_in_staff #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="check_in_staff_id"/>
+        <bm:field name="job_number" forDisplay="true" forQuery="true" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+        <bm:field name="staff_name" forDisplay="true" forQuery="true" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+        <bm:field name="sex"/>
+        <bm:field name="department"/>
+        <bm:field name="base_location"/>
+        <bm:field name="tel" forDisplay="true" forQuery="true" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+        <bm:field name="email_address"/>
+        <bm:field name="check_in_status_code"/>
+    </bm:fields>
+    <bm:query-fields>
+        <bm:query-field name="job_number" queryExpression="employee_code like &apos;%&apos;||${@job_number}||&apos;%&apos;"/>
+        <bm:query-field name="staff_name" queryExpression="name like &apos;%&apos;||${@staff_name}||&apos;%&apos;"/>
+        <bm:query-field name="tel" queryExpression="mobil like &apos;%&apos;||${@tel}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

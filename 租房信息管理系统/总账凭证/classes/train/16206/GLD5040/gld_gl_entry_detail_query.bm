@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-10 下午
+    $Revision: 1.0  
+    $Purpose: 总账凭证信息查询，过账详细HEAD页面
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        gh.gl_entry_head_id,
+                        gh.gl_entry_code,
+                        TO_CHAR(gh.create_date, 'yyyy-mm-dd') create_date,
+                        gh.period,
+                        gh.attachement,
+                        gh.currency_code,
+                        gh.exchange_rate_type,
+                        gh.exchange_rate,
+                        gh.head_summary，
+                        gh.documentmaker,
+                        (SELECT su.description FROM sys_user su WHERE su.user_id=gh.documentmaker
+                        ) documentmaker_name,
+                        gh.auditor,
+                        (SELECT su.description FROM sys_user su WHERE su.user_id=gh.auditor
+                        ) auditor_name,
+                        gh.poster,
+                        (SELECT su.description FROM sys_user su WHERE su.user_id=gh.poster
+                        ) poster_name
+                    FROM
+                        gld_gl_entry_head_16206 gh
+                    WHERE
+                        gh.gl_entry_head_id = ${/parameter/@gl_entry_head_id}
+                    )v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

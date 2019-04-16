@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-9 下午
+    $Revision: 1.0  
+    $Purpose: 总帐凭证信息保存svc
+-->
+<a:service xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc" checkSessionLock="true" lockKey="${/session/@session_id}" trace="true">
+    <a:init-procedure>
+        <a:batch-apply sourcepath="/parameter">
+            <a:model-insert model="train.16206.GLD5010.gld_gl_entry_head_save"/>
+            <a:batch-apply sourcepath="@current_parameter/lines">
+                <p:switch test="@current_parameter/@_status">
+                    <p:case value="insert">
+                        <a:model-insert model="train.16206.GLD5010.gld_gl_entry_line_save"/>
+                    </p:case>
+                    <p:case value="update">
+                        <a:model-update model="train.16206.GLD5010.gld_gl_entry_line_save"/>
+                    </p:case>
+                </p:switch>
+            </a:batch-apply>
+        </a:batch-apply>
+    </a:init-procedure>
+    <a:service-output output="/parameter"/>
+</a:service>

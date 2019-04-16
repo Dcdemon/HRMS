@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-10 下午
+    $Revision: 1.0  
+    $Purpose: 总帐凭证过账页面
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <!-- 对期间、币种、汇率类型的BM执行查询操作 -->
+    <a:init-procedure>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_period_vl_lov" rootPath="period_data"/>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_currency_vl_lov" rootPath="currency_data"/>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_exchangerate_types_vl_lov" rootPath="exchangerate_types_data"/>
+    </a:init-procedure>
+    <a:view>
+        <a:link id="gld_gl_entry_posting_readonly_link" url="${/request/@context_path}/modules/train/16206/GLD5030/gld_gl_entry_posting_detail.screen"/>
+        <a:link id="gld_gl_entry_posting_link" model="train.16206.GLD5030.gld_gl_entry_posting" modelaction="execute"/>
+        <a:link id="gld_gl_entry_posting_query_link" url="${/request/@context_path}/modules/train/16206/GLD5030/gld_gl_entry_posting.screen"/>
+        <script><![CDATA[
+        	//重置
+        	function reset() {
+                $('gld_gl_entry_query_ds').reset();
+            }
+            
+            //过账
+            function posting() {
+                var a = $('gld_gl_entry_result_ds').getJsonData(true);
+                console.log(a.length);
+                if (a.length == 0) {
+                    Aurora.showMessage('${l:EXP_REP_PARTIALLY_SUBMITTED}', '请选择需要过账的凭证');
+                } else if (a.length > 0) {
+                    for (var i = 0;i < a.length;i++) {
+                        var obj = a[i];
+                        var gl_entry_head_id = obj.gl_entry_head_id;
+                        console.log(gl_entry_head_id);
+                        Aurora.request({
+                            lockMessage: '${l:HAP_WAITING}',
+                            lockMessage: '${l:HAP_WAITING}',
+                            url: $('gld_gl_entry_posting_link').getUrl(),
+                            para: {
+                              gl_entry_head_id: gl_entry_head_id
+                            },
+                            scope: this
+                        });
+                        console.log(i);
+                        if (i == (a.length - 1)) {
+                            Aurora.showInfoMessage('${l:PROMPT}', '过账成功！');
+                            window.location.href = $('gld_gl_entry_posting_query_link').getUrl();
+                        }
+                    }
+                }
+            }
+            
+            //点击凭证号跳转到总账凭证详细页面
+			function entryDetails(value, record, name) {
+                var headId = record.get('gl_entry_head_id');
+                return '<a href="javascript:openDetail(' + headId + ')">' + value + '</a>';
+            }
+            
+            function openDetail(headId) {
+                new Aurora.Window({
+                    id: 'gld_gl_entry_posting_window',
+                    url:
+                    $('gld_gl_entry_posting_readonly_link').getUrl() + '?gl_entry_head_id=' + headId,
+                    title: '',
+                    fullScreen: true
+                });
+            }
+        ]]></script>
+        <a:dataSets>
+            <!-- 对BM执行查询操作后进行期间数据查询 -->
+            <a:dataSet id="gld_gl_entry_head_period_ds" loadData="true">
+                <a:datas dataSource="period_data"/>
+            </a:dataSet>
+            <!-- 对BM执行查询操作后进行币种数据查询 -->
+            <a:dataSet id="gld_gl_entry_head_currency_ds" loadData="true">
+                <a:datas dataSource="currency_data"/>
+            </a:dataSet>
+            <!-- 对BM执行查询操作后进行汇率类型数据查询 -->
+            <a:dataSet id="gld_gl_entry_head_exchangerate_types_ds" loadData="true">
+                <a:datas dataSource="exchangerate_types_data"/>
+            </a:dataSet>
+            <a:dataSet id="gld_gl_entry_query_ds" autoCreate="true" autoQuery="true">
+                <a:fields>
+                    <!-- 凭证期间 -->
+                    <a:field name="period" displayField="period_name" options="gld_gl_entry_head_period_ds" returnField="period_name" valueField="period_name"/>
+                    <!-- 汇率类型 -->
+                    <a:field name="exchange_rate_type" displayField="type_name" options="gld_gl_entry_head_exchangerate_types_ds" returnField="exchange_rate_type" valueField="type_name"/>
+                    <!-- 凭证号 -->
+                    <a:field name="gl_entry_code"/>
+                    <!-- 币种 -->
+                    <a:field name="currency" displayField="currency_name" options="gld_gl_entry_head_currency_ds" returnField="currency_name" valueField="currency_name"/>
+                    <!-- 原币始 -->
+                    <a:field name="sum_dr_amount_from"/>
+                    <!-- 原币止 -->
+                    <a:field name="sum_dr_amount_to"/>
+                    <!-- 制单人 -->
+                    <a:field name="documentmaker_name"/>
+                    <!-- 审核人 -->
+                    <a:field name="auditor_name"/>
+                    <!-- 凭证日期始 -->
+                    <a:field name="create_date_from"/>
+                    <!-- 凭证日期止 -->
+                    <a:field name="create_date_to"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="gld_gl_entry_result_ds" autoCount="true" autoPageSize="true" autoQuery="true" fetchAll="false" model="train.16206.GLD5030.gld_gl_entry_post_query" pageSize="20" queryDataSet="gld_gl_entry_query_ds" selectable="true" selectionModel="multiple"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:toolbarButton click="reset" text="HAP_RESET" width="80"/>
+                <a:toolbarButton click="posting" text="过账" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="gld_gl_entry_query_ds" resultTarget="gld_gl_entry_result_ds" style="width:100%;border:none">
+                <a:formToolBar>
+                    <a:comboBox name="period" bindTarget="gld_gl_entry_query_ds" prompt="凭证期间"/>
+                    <a:comboBox name="exchange_rate_type" bindTarget="gld_gl_entry_query_ds" prompt="汇率类型"/>
+                    <a:textField name="gl_entry_code" bindTarget="gld_gl_entry_query_ds" prompt="凭证编号"/>
+                </a:formToolBar>
+                <a:formBody column="4">
+                    <a:comboBox name="currency" bindTarget="gld_gl_entry_query_ds" prompt="凭证币种"/>
+                    <a:textField name="sum_dr_amount_from" bindTarget="gld_gl_entry_query_ds" prompt="原币金额从"/>
+                    <a:textField name="sum_dr_amount_to" bindTarget="gld_gl_entry_query_ds" prompt="原币金额至"/>
+                    <a:textField name="auditor_name" bindTarget="gld_gl_entry_query_ds" prompt="审核人"/>
+                    <a:textField name="documentmaker_name" bindTarget="gld_gl_entry_query_ds" prompt="制单人"/>
+                    <a:datePicker name="create_date_from" bindTarget="gld_gl_entry_query_ds" prompt="凭证日期从"/>
+                    <a:datePicker name="create_date_to" bindTarget="gld_gl_entry_query_ds" prompt="凭证日期至"/>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="gld_gl_entry_query_result_grid" bindTarget="gld_gl_entry_result_ds" marginHeight="121" marginWidth="37" navBar="true">
+                <a:columns>
+                    <a:column name="create_date1" align="center" prompt="凭证日期" renderer="Aurora.formatDate" width="80"/>
+                    <a:column name="gl_entry_code" align="center" prompt="凭证号" renderer="entryDetails" width="120"/>
+                    <a:column name="head_summary" align="center" prompt="摘要" width="150"/>
+                    <a:column name="currency" align="center" prompt="币种" width="100"/>
+                    <a:column name="sum_dr_amount" align="center" prompt="借方原币金额" width="100"/>
+                    <a:column name="sum_cr_amount" align="center" prompt="贷方原币金额" width="100"/>
+                    <a:column name="documentmaker_name" align="center" prompt="制单人" width="100"/>
+                    <a:column name="auditor_name" align="center" prompt="审核人" width="100"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

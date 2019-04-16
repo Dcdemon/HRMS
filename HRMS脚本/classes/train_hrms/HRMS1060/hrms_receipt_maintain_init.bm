@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        hrms_receipt_pkg.get_receipt_number(p_document_type => NULL, 
+                        									p_company_id => 150, 
+                        									p_operation_unit_id => NULL, 
+                        									p_operation_date => sysdate, 
+                        									p_created_by => ${/session/@user_id}) AS receipt_code,
+                        TO_CHAR(sysdate,'yyyy-mm-dd') AS creation_date
+                    FROM
+                        dual
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

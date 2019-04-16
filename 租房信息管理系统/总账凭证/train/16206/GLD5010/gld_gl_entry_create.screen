@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D  
+    $Date: 2017-8-8
+    $Revision: 1.0  
+    $Purpose: 总帐凭证录入
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <!-- 对期间、币种、汇率类型的BM执行查询操作 -->
+    <a:init-procedure>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_period_vl_lov" rootPath="period_data"/>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_currency_vl_lov" rootPath="currency_data"/>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_account_vl_lov" rootPath="accounts_data"/>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5010.find_exchangerate_types_vl_lov" rootPath="exchangerate_types_data"/>
+    </a:init-procedure>
+    <a:view>
+        <a:link id="gld_gl_entry_submit_link" model="train.16206.GLD5010.gld_gl_entry_head_submit" modelaction="execute"/>
+        <a:link id="gld_gl_entry_audit_link" url="${/request/@context_path}/modules/train/16206/GLD5020/gld_gl_entry_audit.screen"/>
+        <a:link id="gld_gl_entry_import_link" url="${/request/@context_path}/modules/train/16206/GLD5010/gld_gl_entry_import.screen"/>
+        <div/>
+        <script><![CDATA[
+            var gl_entry_head_id_bak = '${/parameter/@gl_entry_head_id}';
+            //在新增是调用事件，将头摘要中的数据传给行摘要
+            
+            function transmitSummaryData(ds, record, index) {
+                var header = $('gld_gl_entry_head_ds').getAt(0);
+                var headsummary = header.get('head_summary');
+                record.set('line_summary', headsummary);
+            }
+            
+            
+            //根据汇率和原币计算出本币：本币=原币X汇率
+             function getFunctional(ds, record) { 
+                //获取汇率
+                var hreder = $('gld_gl_entry_head_ds').getAt(0);
+                var rate = hreder.get('exchange_rate');
+                //获取借方和贷方的原币
+                var dr_amount = record.get('dr_amount');
+                var cr_amount = record.get('cr_amount');
+                //若借方原币有值，则自动计算借方本币，并将贷方原币和本币设置为只读
+                if (typeof(dr_amount) != 'undefined' || !Ext.isEmpty(dr_amount)) {
+                    record.set('dr_functional', Math.round(rate * dr_amount,2));
+                    record.getField('cr_amount').setReadOnly(true); 
+                    record.getField('cr_functional').setReadOnly(true);
+                }
+                //若贷方原币有值，则自动计算贷方本币，并将借方原币和本币设置为只读
+                if (typeof(cr_amount) != 'undefined' || !Ext.isEmpty(cr_amount)) {
+                    record.set('cr_functional', Math.round(rate * cr_amount,2));
+                    record.getField('dr_amount').setReadOnly(true); 
+                    record.getField('dr_functional').setReadOnly(true); 
+                }
+                //若借方原币无值则将贷方原币和本币设置为可读
+                if (typeof(dr_amount) == 'undefined' || Ext.isEmpty(dr_amount)) {
+                    record.getField('cr_amount').setReadOnly(false);
+                    record.getField('cr_functional').setReadOnly(false);
+                }
+                //若贷方原币无值则将借方原币和本币设置为可读
+                if (typeof(cr_amount) == 'undefined' || Ext.isEmpty(cr_amount)) {
+                    record.getField('dr_amount').setReadOnly(false);
+                    record.getField('dr_functional').setReadOnly(false);
+                }
+            }
+           
+            function createLineRecord() {
+                var ds = $('gld_gl_entry_line_ds');
+                var lineRecord = ds.getSelected();
+                if (lineRecord.length == 0) {
+                    //当未勾选行时
+                    ds.create();
+                } else {
+                    //复制当前勾选的行记录
+                    for (i = 0;i < lineRecord.length;i++) {
+                        var data = lineRecord[i].data;
+                        var newdata = {};
+                        var len = ds.getAll().length;
+                        for (var name in data) {
+                            newdata[name] = data[name];
+                        }
+                        var record = new Aurora.Record(newdata);
+                        record.isNew = 'true';
+                        record.dirty = 'false';
+            
+                        ds.add(record);
+                        var lineAtRecord = ds.getAt(len);
+                        lineAtRecord.set('gl_entry_line_id', '');
+                    }
+                }
+            }
+            
+            //行创建前事件：当行新增之前时触发该操作 - 凭证行信息记录
+            function lineBeforeCreate() {
+                if ($('gld_gl_entry_line_ds').getAll().length == 0 && $('gld_gl_entry_head_ds').validate()) {
+                    var t = $('gld_gl_entry_head_ds').getAt(0);
+                    var r = t.getMeta();
+                    //新增行记录将头字段设为只读状态
+                    r.getField('create_date').setReadOnly(true);
+                    r.getField('period').setReadOnly(true);
+                    r.getField('attachement').setReadOnly(true);
+                    r.getField('currency').setReadOnly(true);
+                    r.getField('exchange_rate_type').setReadOnly(true);
+                    r.getField('exchange_rate').setReadOnly(true);
+                    r.getField('head_summary').setReadOnly(true);
+                    return true;
+                } else if ($('gld_gl_entry_line_ds').getAll().length != 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+                return true;
+            }
+            
+            //保存
+            function saveEntry() {
+                var lineRecord = $('gld_gl_entry_line_ds').getAll();
+                var sumDr = 0;
+                var sumCr = 0;
+                for (var i = 0;i < lineRecord.length;i++) {
+                    var obj = lineRecord[i];
+                    var a, b;
+                    if (obj.get('dr_amount') == null) {
+                        a = 0;
+                    } else {
+                        a = obj.get('dr_amount'); //借方金额
+                    }
+                    if (obj.get('cr_amount') == null) {
+                        b = 0;
+                    } else {
+                        b = obj.get('cr_amount'); //贷方金额
+                    }
+                    sumDr = sumDr + a;
+                    sumCr = sumCr + b;
+                }
+                if (sumDr != sumCr) {
+                    Aurora.showInfoMessage('${l:PROMPT}', '借方金额与贷方金额不一致，不能保存！', null, 250, 100);
+                    return;
+                }
+                var d1 = $('gld_gl_entry_head_ds');
+                var d2 = $('gld_gl_entry_line_ds');
+                if (!d1.validate()) {
+                    return;
+                }
+                if (!d2.validate()) {
+                    return;
+                }
+                if (d2.getAll().length == 0) {
+                    Aurora.showInfoMessage('${l:PROMPT}', '${l:PLEASE_INSERT_LINE_DATA}', null, 250, 100);
+                    return;
+                }
+                //数据保存
+                $('gld_gl_entry_head_ds').setSubmitUrl("${/request/@context_path}/modules/train/16206/GLD5010/gld_gl_entry_save.svc");
+                $('gld_gl_entry_head_ds').submit();
+            }
+            
+            //点击保存后触发的操作
+            function reloadres(ds, res) {
+                saveFlag = true;
+                var g = gl_entry_head_id_bak;
+                $('gld_gl_entry_head_ds').setQueryParameter('gl_entry_head_id', g);
+                $('gld_gl_entry_line_ds').setQueryParameter('gl_entry_head_id', g);
+                gl_entry_head_id_bak = g;
+            }
+            
+            //数据提交
+            function submitEntry() {
+                //获取头表主键id
+                var headid = $('gld_gl_entry_head_ds').getAt(0).get('gl_entry_head_id');
+                saveFlag = true;
+                //必须在动态列和行都处于无脏数据的情况下才能进行保存。否则提示。
+                if (!saveFlag || $('gld_gl_entry_head_ds').isModified() || ($('gld_gl_entry_line_ds').isModified())) {
+                    Aurora.showInfoMessage('${l:PROMPT}', '${l:PROMPT.SAVE_SUBMIT}', null, 250, 100);
+                    return;
+                }
+                if (!$('gld_gl_entry_line_ds').validate()) {
+                    return;
+                }
+                if (!$('gld_gl_entry_head_ds').validate()) {
+                    return;
+                }
+                Aurora.showConfirm('总账凭证提交', '是否提交？', function(cmp) {
+                    Aurora.request({
+                        lockMessage: '${l:HAP_WAITING}',
+                        lockMessage: '${l:HAP_WAITING}',
+                        url: $('gld_gl_entry_submit_link').getUrl(),
+                        para: {
+                            gl_entry_head_id: headid
+                        },
+                        success: function(res) {
+                            window.location.href = $('gld_gl_entry_audit_link').getUrl();
+                        },
+                        scope: this
+                    });
+            
+                }, null, null, 85);
+            }
+            
+            function importEntry(){
+            	window.location.href = $('gld_gl_entry_import_link').getUrl();
+            }
+        ]]></script>
+        <a:dataSets>
+            <!-- 对BM执行查询操作后进行期间数据查询 -->
+            <a:dataSet id="gld_gl_entry_head_period_ds" loadData="true">
+                <a:datas dataSource="period_data"/>
+            </a:dataSet>
+            <!-- 对BM执行查询操作后进行币种数据查询 -->
+            <a:dataSet id="gld_gl_entry_head_currency_ds" loadData="true">
+                <a:datas dataSource="currency_data"/>
+            </a:dataSet>
+            <!-- 对BM执行查询操作后进行汇率类型数据查询 -->
+            <a:dataSet id="gld_gl_entry_head_exchangerate_types_ds" loadData="true">
+                <a:datas dataSource="exchangerate_types_data"/>
+            </a:dataSet>
+            <!-- 总表 -->
+            <a:dataSet id="gld_gl_entry_head_ds">
+                <a:fields>
+                    <!-- 凭证总表主键id -->
+                    <a:field name="gl_entry_head_id"/>
+                    <!-- 凭证号 -->
+                    <a:field name="gl_entry_code" required="true"/>
+                    <!-- 日期 -->
+                    <a:field name="create_date" required="true"/>
+                    <!-- 总账期间 -->
+                    <a:field name="period" displayField="period_name" options="gld_gl_entry_head_period_ds" required="true" returnField="period_name" valueField="period_name"/>
+                    <!-- 附件 -->
+                    <a:field name="attachement"/>
+                    <!-- 币种 -->
+                    <a:field name="currency" displayField="currency_name" options="gld_gl_entry_head_currency_ds" required="true" returnField="currency_name" valueField="currency_name"/>
+                    <!-- 汇率类型 -->
+                    <a:field name="exchange_rate_type" displayField="type_name" options="gld_gl_entry_head_exchangerate_types_ds" required="true" returnField="exchange_rate_type" valueField="type_name"/>
+                    <!-- 汇率 -->
+                    <a:field name="exchange_rate" required="true"/>
+                    <!-- 头摘要 -->
+                    <a:field name="head_summary" required="true"/>
+                </a:fields>
+                <a:events>
+                    <a:event name="submitsuccess" handler="reloadres"/>
+                </a:events>
+            </a:dataSet>
+            <!-- 子表 -->
+            <a:dataSet id="gld_gl_entry_line_accounts_ds" loadData="true">
+                <a:datas dataSource="accounts_data"/>
+            </a:dataSet>
+            <a:dataSet id="gld_gl_entry_line_ds" autoQuery="true" bindName="lines" bindTarget="gld_gl_entry_head_ds" fetchAll="true" pageSize="100" selectable="true">
+                <a:fields>
+                    <!-- 主表id -->
+                    <a:field name="gl_entry_head_id"/>
+                    <!-- 子表主键id -->
+                    <a:field name="gl_entry_line_id"/>
+                    <!-- 行摘要 -->
+                    <a:field name="line_summary" required="true"/>
+                    <!-- 会计科目 -->
+                    <a:field name="account_id"/>
+                    <a:field name="account_name" autoComplete="true" autoCompleteField="account_name" lovGridHeight="300" lovHeight="460" lovService="train.16206.GLD5010.find_account_vl_lov" lovWidth="460" required="true" title="会计科目查询">
+                        <a:mapping>
+                            <a:map from="account_id" to="account_id"/>
+                            <a:map from="description" to="account_name"/>
+                        </a:mapping>
+                    </a:field>
+                    <!-- 借方原币 -->
+                    <a:field name="dr_amount"/>
+                    <!-- 贷方原币 -->
+                    <a:field name="cr_amount"/>
+                    <!-- 借方本币 -->
+                    <a:field name="dr_functional"/>
+                    <!-- 贷方本币 -->
+                    <a:field name="cr_functional"/>
+                </a:fields>
+                <a:events>
+                    <!-- 事件：在创建行数据时将头数据设置为只读 -->
+                    <a:event name="beforecreate" handler="lineBeforeCreate"/>
+                    <!-- 事件：将头摘要中的数据传给行摘要 -->
+                    <a:event name="add" handler="transmitSummaryData"/>
+                    <!-- 事件：根据汇率和原币计算出本币 -->
+                    <a:event name="update" handler="getFunctional"/>
+                </a:events>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:toolbarButton click="saveEntry" text="HAP_SAVE" width="80"/>
+                <a:toolbarButton id="submitBtn" click="submitEntry" text="HAP_SUBMIT" width="80"/>
+                <a:toolbarButton id="import" click="importEntry" text="导入" width="80"/>
+            </a:screenTopToolbar>
+            <a:form id="gld_gl_entry_head_form" title="凭证录入">
+                <a:box id="gld_gl_entry_head_box" column="4" marginWidth="206">
+                    <a:textField name="gl_entry_code" bindTarget="gld_gl_entry_head_ds" prompt="凭证号"/>
+                    <a:datePicker name="create_date" bindTarget="gld_gl_entry_head_ds" prompt="日期"/>
+                    <a:comboBox name="period" bindTarget="gld_gl_entry_head_ds" prompt="期间"/>
+                    <a:textField name="attachement" bindTarget="gld_gl_entry_head_ds" prompt="附件"/>
+                    <a:comboBox name="currency" bindTarget="gld_gl_entry_head_ds" prompt="币种"/>
+                    <a:comboBox name="exchange_rate_type" bindTarget="gld_gl_entry_head_ds" prompt="汇率类型"/>
+                    <a:textField name="exchange_rate" bindTarget="gld_gl_entry_head_ds" prompt="汇率"/>
+                    <a:textField name="head_summary" bindTarget="gld_gl_entry_head_ds" prompt="摘要"/>
+                </a:box>
+            </a:form>
+            <a:grid id="line_grid" bindTarget="gld_gl_entry_line_ds" marginHeight="240" marginWidth="199" navBar="true">
+                <a:toolBar>
+                    <a:button id="add_Btn" click="createLineRecord" icon="${/request/@context_path}/images/add.gif" text="HAP_NEW"/>
+                    <a:button id="del_Btn" text="删除" type="delete"/>
+                </a:toolBar>
+                <a:columns>
+                    <a:column name="line_summary" editor="gld_gl_entry_line_tf" prompt="摘要"/>
+                    <a:column name="account_name" editor="gld_gl_entry_line_lov" prompt="会计科目" width="300"/>
+                    <a:column name="dr_amount" editor="gld_gl_entry_line_nf" prompt="借方原币"/>
+                    <a:column name="cr_amount" editor="gld_gl_entry_line_nf" prompt="贷方原币"/>
+                    <a:column name="dr_functional" editor="gld_gl_entry_line_nf" prompt="借方本币"/>
+                    <a:column name="cr_functional" editor="gld_gl_entry_line_nf" prompt="贷方本币"/>
+                </a:columns>
+                <a:editors>
+                    <a:textField id="gld_gl_entry_line_tf"/>
+                    <a:comboBox id="gld_gl_entry_line_comb"/>
+                    <a:lov id="gld_gl_entry_line_lov"/>
+                    <a:numberField id="gld_gl_entry_line_nf"/>
+                </a:editors>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

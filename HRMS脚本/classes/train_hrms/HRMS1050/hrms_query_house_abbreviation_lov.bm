@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        house_id,
+                        house_abbreviation,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_TYPE', 
+                        							       p_code_value => house_type_code) AS house_type,
+                        landlord_name
+                    FROM
+                        hrms_house #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="house_id" forDisplay="false"/>
+        <bm:field name="house_abbreviation" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+        <bm:field name="house_type" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.HOUSE_TYPE"/>
+        <bm:field name="landlord_name" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+    </bm:fields>
+    <bm:data-filters>
+        <bm:data-filter name="house_status_code" expression="house_status_code=&apos;ALREADY_RENTED&apos;"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation like &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="landlord_name" queryExpression="landlord_name like &apos;%&apos;||${@landlord_name}||&apos;%&apos;"/>
+        <bm:query-field name="house_type" queryExpression="hrms_house_pkg.get_code_value_name(p_code =&gt; &apos;HRMS_CODING_VALUE_HOUSE_TYPE&apos;, p_code_value =&gt; house_type_code) like &apos;%&apos;||${@house_type}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

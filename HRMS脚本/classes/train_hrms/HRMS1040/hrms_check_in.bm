@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:update-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        check_in_staff_id,
+                        job_number,
+                        staff_name,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_SEX', p_code_value => sex_code) AS sex,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_DEPARTMENT', p_code_value => department_code) AS department,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BASE_LOCATION', p_code_value => base_location_code) AS base_location,
+                        tel,
+                        email_address,
+                        check_in_status_code,
+                        TO_CHAR(expected_living_to_date,'yyyy-mm-dd') AS expected_living_to_date
+                    FROM
+                        hrms_check_in_staff,
+                        hrms_rent_process_record
+                    WHERE
+                        hrms_check_in_staff.check_in_staff_id = hrms_rent_process_record.staff_id AND
+                        contract_id                           = ${@contract_id} AND
+                        check_in_status_code                  ='CHECKED_IN' AND
+                        check_out_date                       IS NULL
+                    ) v
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="insert">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_rent_process_record_pkg.insert_new_rent_process_record(p_contract_id => ${@contract_id}, 
+                    															p_staff_id => ${@check_in_staff_id}, 
+                    															p_expected_living_to_date => ${@expected_living_to_date}, 
+                    															p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

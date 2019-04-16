@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        region_code AS city_code,
+                        description AS city_name
+                    FROM
+                        fnd_region_code_vl
+                    WHERE
+                        region_code LIKE SUBSTR(${@region_code}, 0, 2)
+                        || '____' AND
+                        region_code NOT LIKE '__'
+                        || '0000'
+                    ORDER BY
+                        region_code
+                    ) v
+            ]]></bm:query-sql>
+            <bm:parameters>
+                <bm:parameter name="region_code"/>
+            </bm:parameters>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

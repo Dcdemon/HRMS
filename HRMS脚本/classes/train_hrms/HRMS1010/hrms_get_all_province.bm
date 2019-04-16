@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        region_code province_code,
+                        description province_name
+                    FROM
+                        fnd_region_code_vl
+                    WHERE
+                        region_code LIKE '%0000'
+                    ORDER BY
+                        region_code
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

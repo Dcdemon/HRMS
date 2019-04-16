@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="HRMS1010_house_maintain_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1010/hrms_house_maintain.screen"/>
+        <a:link id="HRMS1010_house_detail_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1010/hrms_house_detail.screen"/>
+        <script><![CDATA[
+            function HRMS1010_resetQuery() {
+                $('HRMS1010_house_main_query').reset();
+            }
+            
+            function HRMS1010_openNewMaintainScreen() {
+                new Aurora.Window({
+                    id: 'HRMS1010_new_house_maintain_screen',
+                    url: $('HRMS1010_house_maintain_screen').getUrl(),
+                    fullScreen: true
+                });
+            }
+            
+            function HRMS1010_deleteHouse() {
+                if($('HRMS1010_house_main_result').getSelected().length!=1){
+                    Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+                    return ;
+                }
+                if($('HRMS1010_house_main_result').getSelected()[0].get('house_status_code')=='ALREADY_RENTED'){
+                    Aurora.showMessage('','${l:HRMS_1010.ALREADY_RENTED_HOUSE}');
+                    return ;
+                }
+                new Aurora.showConfirm('','${l:HRMS_1010.SURE_TO_DELETE}',function(){
+                    var house_id = $('HRMS1010_house_main_result').getSelected()[0].get('house_id');
+		            $('HRMS1010_house_main_result').setSubmitParameter('house_id', house_id);
+		            $('HRMS1010_house_main_result').submit();
+		            window.location.reload();
+                });
+            }
+            
+            function HRMS1010_updateHouse(){
+                if($('HRMS1010_house_main_result').getSelected().length!=1){
+                    Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+                    return ;
+                }
+                var house_id = $('HRMS1010_house_main_result').getSelected()[0].get('house_id');
+                new Aurora.Window({
+                    id: 'HRMS1010_new_house_maintain_screen',
+                    url: $('HRMS1010_house_maintain_screen').getUrl()+"?house_id="+house_id,
+                    fullScreen: true
+                });
+            }
+            
+            function HRMS1010_houseDetail(house_code){
+                new Aurora.Window({
+                    id: 'HRMS1010_new_house_detail_screen',
+                    url: $('HRMS1010_house_detail_screen').getUrl()+"?house_code="+house_code,
+                    fullScreen: 'true'
+                });
+            }
+            
+            function HRMS1010_houseDetailRender(value, record, name){
+                return '<a href="#" onclick="javascript:HRMS1010_houseDetail(\'' + value + '\')">' + value + '</a>';
+            }
+          	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1010_house_main_house_type_ds" lookupCode="HRMS_CODING_VALUE_HOUSE_TYPE"/>
+            <a:dataSet id="HRMS1010_house_main_house_status_ds" lookupCode="HRMS_CODING_VALUE_HOUSE_STATUS"/>
+            <a:dataSet id="HRMS1010_house_main_query">
+                <a:fields>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="landlord_name" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+                    <a:field name="landlord_tel" prompt="HRMS_HOUSE.LANDLORD_TEL"/>
+                    <a:field name="house_status" displayField="code_value_name" options="HRMS1010_house_main_house_status_ds" prompt="HRMS_HOUSE.HOUSE_STATUS" returnField="house_status_code" valueField="code_value"/>
+                    <a:field name="house_type" displayField="code_value_name" options="HRMS1010_house_main_house_type_ds" prompt="HRMS_HOUSE.HOUSE_TYPE" returnField="house_type_code" valueField="code_value"/>
+                    <a:field name="create_date_from" prompt="HRMS_HOUSE.CREATE_DATE_FROM"/>
+                    <a:field name="create_date_to" prompt="HRMS_HOUSE.CREATE_DATE_TO"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1010_house_main_result" autoQuery="true" model="train_hrms.HRMS1010.hrms_query_all_house" queryDataSet="HRMS1010_house_main_query" selectable="true" submitUrl="${/request/@context_path}/autocrud/train_hrms.HRMS1010.hrms_delete_house/delete">
+                <a:fields>
+                    <a:field name="house_id" prompt="HRMS_HOUSE.HOUSE_ID"/>
+                    <a:field name="house_code" prompt="HRMS_HOUSE.HOUSE_CODE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="house_type" prompt="HRMS_HOUSE.HOUSE_TYPE"/>
+                    <a:field name="bed_number" prompt="HRMS_HOUSE.BED_NUMBER"/>
+                    <a:field name="landlord_name" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+                    <a:field name="landlord_tel" prompt="HRMS_HOUSE.LANDLORD_TEL"/>
+                    <a:field name="intermediary_name" prompt="HRMS_HOUSE.INTERMEDIARY_NAME"/>
+                    <a:field name="house_address" prompt="HRMS_HOUSE.HOUSE_ADDRESS"/>
+                    <a:field name="house_status" prompt="HRMS_HOUSE.HOUSE_STATUS"/>
+                    <a:field name="house_create_date" prompt="HRMS_HOUSE.HOUSE_CREATE_DATE"/>
+                    <a:field name="house_remark" prompt="HRMS_HOUSE.REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton bind="HRMS1010_house_main_grid" type="excel" width="80"/>
+                <a:gridButton click="HRMS1010_openNewMaintainScreen" text="HRMS_HOUSE.ADD" width="80"/>
+                <a:gridButton click="HRMS1010_updateHouse" text="HRMS_HOUSE.UPDATE" width="80"/>
+                <a:gridButton click="HRMS1010_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+                <a:gridButton click="HRMS1010_deleteHouse" text="HRMS_HOUSE.DELETE" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1010_house_main_query" resultTarget="HRMS1010_house_main_result" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="house_abbreviation" bindTarget="HRMS1010_house_main_query"/>
+                        <a:textField name="landlord_name" bindTarget="HRMS1010_house_main_query"/>
+                        <a:textField name="landlord_tel" bindTarget="HRMS1010_house_main_query"/>
+                        <a:comboBox name="house_status" bindTarget="HRMS1010_house_main_query"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:comboBox name="house_type" bindTarget="HRMS1010_house_main_query"/>
+                        <a:datePicker name="create_date_from" bindTarget="HRMS1010_house_main_query"/>
+                        <a:datePicker name="create_date_to" bindTarget="HRMS1010_house_main_query"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1010_house_main_grid" bindTarget="HRMS1010_house_main_result" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="house_id" hidden="true"/>
+                    <a:column name="house_code" align="center" maxAdjustWidth="100" renderer="HRMS1010_houseDetailRender" width="100"/>
+                    <a:column name="house_abbreviation" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="house_type" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="bed_number" align="center" maxAdjustWidth="40" width="40"/>
+                    <a:column name="landlord_name" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="landlord_tel" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="intermediary_name" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="house_address" align="center" maxAdjustWidth="240" width="240"/>
+                    <a:column name="house_status" align="center" maxAdjustWidth="60" width="60"/>
+                    <a:column name="house_create_date" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="house_remark" align="center" maxAdjustWidth="234" width="234"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

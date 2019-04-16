@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        hrms_contract.contract_code,
+                        hrms_house.house_abbreviation,
+                        TO_CHAR(hrms_contract.start_date, 'yyyy-mm-dd') AS start_date,
+                        TO_CHAR(hrms_contract.end_date, 'yyyy-mm-dd') AS end_date,
+                        hrms_check_in_staff.job_number,
+                        hrms_check_in_staff.staff_name,
+                        hrms_check_in_staff.tel,
+                        TO_CHAR(hrms_rent_process_record.check_in_date, 'yyyy-mm-dd') AS check_in_date,
+                        hrms_fee_claim.rent_fee_total,
+                        hrms_fee_claim.rent_fee_total - hrms_fee_claim.rent_fee_remain AS rent_fee_done,
+                        hrms_fee_claim.electricity_fee_total,
+                        hrms_fee_claim.electricity_fee_total - hrms_fee_claim.electricity_fee_remain AS electricity_fee_done,
+                        hrms_fee_claim.water_fee_total,
+                        hrms_fee_claim.water_fee_total - hrms_fee_claim.water_fee_remain AS water_fee_done,
+                        hrms_fee_claim.tv_fee_total,
+                        hrms_fee_claim.tv_fee_total - hrms_fee_claim.tv_fee_remain AS tv_fee_done,
+                        hrms_fee_claim.network_fee_total,
+                        hrms_fee_claim.network_fee_total - hrms_fee_claim.network_fee_remain AS network_fee_done
+                    FROM
+                        hrms_contract,
+                        hrms_house,
+                        hrms_check_in_staff,
+                        hrms_rent_process_record,
+                        hrms_fee_claim #WHERE_CLAUSE#
+                    )v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="house_id" expression="hrms_contract.house_id = hrms_house.house_id"/>
+        <bm:data-filter name="staff_id" expression="hrms_rent_process_record.staff_id =hrms_check_in_staff.check_in_staff_id and hrms_fee_claim.staff_id = hrms_check_in_staff.check_in_staff_id"/>
+        <bm:data-filter name="contract_id" expression="hrms_rent_process_record.contract_id = hrms_contract.contract_id and hrms_fee_claim.contract_id = hrms_contract.contract_id"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="contract_code" queryExpression="contract_code like &apos;%&apos;||${@contract_code}||&apos;%&apos;"/>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation like &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="job_number" queryExpression="job_number like &apos;%&apos;||${@job_number}||&apos;%&apos;"/>
+        <bm:query-field name="staff_name" queryExpression="staff_name like &apos;%&apos;||${@staff_name}||&apos;%&apos;"/>
+        <bm:query-field name="tel" queryExpression="tel like &apos;%&apos;||${@tel}||&apos;%&apos;"/>
+        <bm:query-field name="check_in_date_from" queryExpression="hrms_rent_process_record.check_in_date &gt;= to_date(${@check_in_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="check_in_date_to" queryExpression="hrms_rent_process_record.check_in_date &lt;= to_date(${@check_in_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+    </bm:query-fields>
+</bm:model>

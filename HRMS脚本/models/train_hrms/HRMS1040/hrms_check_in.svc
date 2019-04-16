@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:service xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc" checkSessionLock="true" lockKey="${/session/@session_id}" trace="true">
+    <a:init-procedure>
+        <a:batch-apply sourcepath="/parameter">
+            <a:batch-apply>
+                <a:model-update model="train_hrms.hrms_1110.hrms_check_in"/>
+            </a:batch-apply>
+        </a:batch-apply>
+    </a:init-procedure>
+</a:service>

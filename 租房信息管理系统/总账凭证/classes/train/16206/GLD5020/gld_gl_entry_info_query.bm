@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-10 下午
+    $Revision: 1.0  
+    $Purpose: 总账凭证信息查询，审核页面,未跳转
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        gh.gl_entry_head_id,
+                        gh.period,
+                        gh.exchange_rate_type,
+                        gh.gl_entry_code,
+                        gh.currency_code currency,
+                        SUM(gl.dr_amount) sum_dr_amount,
+                        SUM(gl.cr_amount) sum_cr_amount,
+                        gh.documentmaker,
+                        (SELECT su.description FROM sys_user su WHERE su.user_id=gh.documentmaker
+                        ) documentmaker_name ,
+                        gh.create_date,
+                        TO_CHAR(gh.create_date, 'yyyy-mm-dd') create_date1,
+                        gh.head_summary
+                    FROM
+                        gld_gl_entry_head_16206 gh,
+                        gld_gl_entry_line_16206 gl
+                    WHERE
+                        gh.gl_entry_head_id = gl.gl_entry_head_id AND
+                        gh.status           = 'SUBMIT'
+                    GROUP BY
+                        gh.gl_entry_head_id,
+                        gh.period,
+                        gh.exchange_rate_type,
+                        gh.gl_entry_code,
+                        gh.currency_code,
+                        gh.documentmaker,
+                        gh.create_date,
+                        gh.head_summary
+                    ORDER BY
+                        gh.gl_entry_code
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:query-fields>
+        <bm:query-field name="period" queryExpression="v.period like ${@period}"/>
+        <bm:query-field name="exchange_rate_type" queryExpression="v.exchange_rate_type like ${@exchange_rate_type}"/>
+        <bm:query-field name="gl_entry_code" queryExpression="v.gl_entry_code like &apos;%&apos; ||${@gl_entry_code}||&apos;%&apos;"/>
+        <bm:query-field name="currency" queryExpression="v.currency like ${@currency}"/>
+        <bm:query-field name="sum_dr_amount_from" queryExpression="sum_dr_amount &gt;=${@sum_dr_amount_from}"/>
+        <bm:query-field name="sum_dr_amount_to" queryExpression="sum_dr_amount &lt;=${@sum_dr_amount_to}"/>
+        <bm:query-field name="documentmaker" queryExpression="v.documentmaker like ${@documentmaker}"/>
+        <bm:query-field name="create_date_from" dataType="java.lang.String" queryExpression="to_char(create_date,&apos;YYYY-MM-DD&apos;)&gt;=${@create_date_from}"/>
+        <bm:query-field name="create_date_to" dataType="java.lang.String" queryExpression="to_char(create_date,&apos;YYYY-MM-DD&apos;)&lt;=${@create_date_to}"/>
+    </bm:query-fields>
+</bm:model>

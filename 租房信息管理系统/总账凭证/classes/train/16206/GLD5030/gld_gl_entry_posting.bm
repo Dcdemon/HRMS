@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-12 下午
+    $Revision: 1.0  
+    $Purpose: 总账凭证过账
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="execute">
+            <bm:parameters>
+                <bm:parameter name="gl_entry_head_id" dataType="java.lang.Long" input="true" output="false" required="true"/>
+            </bm:parameters>
+            <bm:update-sql><![CDATA[
+                begin
+                    GLD_GL_ENTRY_PKG.gld_gl_entry_16206_posting
+                    (
+                        p_gl_entry_head_id=>${@gl_entry_head_id},
+                        p_poster=>${/session/@user_id}
+                    );
+                end;]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

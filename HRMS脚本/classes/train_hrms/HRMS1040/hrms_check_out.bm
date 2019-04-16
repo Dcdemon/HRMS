@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        rent_process_record_id,
+                        hrms_rent_process_record.contract_id AS contract_id,
+                        hrms_rent_process_record.staff_id AS check_in_staff_id,
+                        contract_code,
+                        job_number,
+                        staff_name,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_SEX', p_code_value => sex_code) AS sex,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_DEPARTMENT', p_code_value => department_code) AS department,
+                        base_location_code, --base地code
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BASE_LOCATION', p_code_value => base_location_code) AS base_location,
+                        tel,
+                        house_abbreviation,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_TYPE', p_code_value => house_type_code) AS house_type,
+                        TO_CHAR(check_in_date,'yyyy-mm-dd') AS check_in_date,
+                        ceil(sysdate-check_in_date) AS living_day,
+                        check_in_status_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CHECK_IN_STATUS', p_code_value => check_in_status_code) AS check_in_status
+                    FROM
+                        hrms_rent_process_record,
+                        hrms_check_in_staff,
+                        hrms_contract,
+                        hrms_house #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_rent_process_record_pkg. check_out_record(p_rent_process_record_id => ${@rent_process_record_id}, 
+                    											   p_check_out_date => ${@check_out_date}, 
+                    											   p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="contract_id" expression="hrms_rent_process_record.contract_id=hrms_contract.contract_id"/>
+        <bm:data-filter name="staff_id" expression="hrms_rent_process_record.staff_id=hrms_check_in_staff.check_in_staff_id"/>
+        <bm:data-filter name="house_id" expression="hrms_house.house_id=hrms_contract.house_id"/>
+        <bm:data-filter name="check_in_status_code" expression="check_in_status_code=&apos;CHECKED_IN&apos;"/>
+        <bm:data-filter name="check_out_date" expression="check_out_date is null"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="job_number" queryExpression="job_number like &apos;%&apos;||${@job_number}||&apos;%&apos;"/>
+        <bm:query-field name="staff_name" queryExpression="staff_name like &apos;%&apos;||${@staff_name}||&apos;%&apos;"/>
+        <bm:query-field name="sex" queryExpression="sex_code=${@sex_code}"/>
+        <bm:query-field name="department" queryExpression="department_code=${@department_code}"/>
+        <bm:query-field name="base_location" queryExpression="base_location_code=${@base_location_code}"/>
+        <bm:query-field name="tel" queryExpression="tel like &apos;%&apos;||${@tel}||&apos;%&apos;"/>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation like &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="check_in_date_from" queryExpression="check_in_date &gt;= to_date(${@check_in_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;) "/>
+        <bm:query-field name="check_in_date_to" queryExpression="check_in_date &lt;= to_date(${@check_in_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;) "/>
+    </bm:query-fields>
+</bm:model>

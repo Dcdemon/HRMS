@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        receipt_id,
+                        staff_id,
+                        receipt_code,
+                        TO_CHAR(hrms_receipt.creation_date,'yyyy-mm-dd') AS creation_date,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_RECEIPT_SOURCE', 
+                        								   p_code_value => receipt_source_code) AS receipt_source,
+                        staff_name,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_RECEIPT_METHOD', 
+                        								   p_code_value => receipt_method_code) AS receipt_method,
+                        receipt_amount,
+                        write_off_amount,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CURRENCY_TYPE', 
+                        							       p_code_value => currency_code) AS currency,
+                        hrms_receipt.remark
+                    FROM
+                        hrms_receipt,
+                        hrms_check_in_staff #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="staff_id" expression="hrms_receipt.staff_id=hrms_check_in_staff.check_in_staff_id"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="receipt_code" queryExpression="receipt_code like &apos;%&apos;||${@receipt_code}||&apos;%&apos;"/>
+        <bm:query-field name="receipt_source_code" queryExpression="receipt_source_code=${@receipt_source_code}"/>
+        <bm:query-field name="staff_name" queryExpression="staff_name like &apos;%&apos;||${@staff_name}||&apos;%&apos;"/>
+        <bm:query-field name="receipt_method_code" queryExpression="receipt_method_code=${@receipt_method_code}"/>
+        <bm:query-field name="creation_date_from" queryExpression="hrms_receipt.creation_date &gt;= to_date(${@creation_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="creation_date_to" queryExpression="hrms_receipt.creation_date &lt;= to_date(${@creation_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+    </bm:query-fields>
+</bm:model>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+    		function HRMS1080_resetQuery() {
+                $('HRMS1080_receipt_report_form_query_ds').reset();
+        	}
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1080_receipt_report_form_query_ds">
+                <a:fields>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="check_in_date_from" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE_FROM"/>
+                    <a:field name="check_in_date_to" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE_TO"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1080_receipt_report_form_result_ds" autoQuery="true" model="train_hrms.HRMS1080.hrms_receipt_report_form" queryDataSet="HRMS1080_receipt_report_form_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="start_date" prompt="HRMS_CONTRACT.START_DATE"/>
+                    <a:field name="end_date" prompt="HRMS_CONTRACT.END_DATE"/>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="check_in_date" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE"/>
+                    <a:field name="receipt_amount" prompt="HRMS_RECEIPT.RECEIPT_AMOUNT"/>
+                    <a:field name="write_off_amount" prompt="HRMS_VERIFICATION.HAVE_VERIFICATION_AMOUNT"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1080_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1080_receipt_report_form_query_ds" resultTarget="HRMS1080_receipt_report_form_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="contract_code" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                        <a:textField name="house_abbreviation" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                        <a:textField name="job_number" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                        <a:textField name="staff_name" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="tel" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                        <a:datePicker name="check_in_date_from" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                        <a:datePicker name="check_in_date_to" bindTarget="HRMS1080_receipt_report_form_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1080_receipt_report_form_grid" bindTarget="HRMS1080_receipt_report_form_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="contract_code" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="house_abbreviation" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="start_date" align="center" maxAdjustWidth="130" width="130"/>
+                    <a:column name="end_date" align="center" maxAdjustWidth="130" width="130"/>
+                    <a:column name="job_number" align="center" maxAdjustWidth="114" width="114"/>
+                    <a:column name="staff_name" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="tel" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="check_in_date" align="center" maxAdjustWidth="130" width="130"/>
+                    <a:column name="receipt_amount" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="write_off_amount" align="center" maxAdjustWidth="100" width="100"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

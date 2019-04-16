@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D  
+    $Date: 2017-8-11 
+    $Revision: 1.0  
+    $Purpose: 总账凭证信息查询，审核详细LINE页面
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                    	gl.gl_entry_head_id,
+                        gl.line_summary,
+                        gl.account_id,
+                        (SELECT
+                            a.account_code
+                            || ' '
+                            || a.description name
+                        FROM
+                            gld_accounts_vl a
+                        WHERE
+                            a.account_id=gl.account_id
+                        ) account_name,
+                        gl.dr_amount,
+                        gl.cr_amount,
+                        gl.dr_functional,
+                        gl.cr_functional
+                    FROM
+                        gld_gl_entry_line_16206 gl
+                    WHERE
+                        gl.gl_entry_head_id=${/parameter/@gl_entry_head_id}
+                    )v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

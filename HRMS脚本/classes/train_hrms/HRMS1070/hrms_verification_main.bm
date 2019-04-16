@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        hrms_verification.verification_id,
+                        hrms_verification.staff_id,
+                        hrms_verification.verification_code,
+                        TO_CHAR(hrms_verification.creation_date, 'yyyy-mm-dd') AS creation_date,
+                        hrms_verification.contract_code,
+                        hrms_verification_detail.bond_item_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_FEE_ITEM', p_code_value => hrms_verification_detail.bond_item_code) AS bond_item,
+                        hrms_verification_detail.verification_amount,
+                        hrms_verification.verification_source_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_RECEIPT_SOURCE', p_code_value => verification_source_code) AS verification_source,
+                        hrms_check_in_staff.staff_name,
+                        hrms_verification.receipt_code,
+                        hrms_verification.currency_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CURRENCY_TYPE', p_code_value => currency_code) AS currency,
+                        hrms_verification.remark
+                    FROM
+                        hrms_verification,
+                        hrms_verification_detail,
+                        hrms_check_in_staff #WHERE_CLAUSE#
+                    )v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:query-fields>
+        <bm:query-field name="verification_code" queryExpression="verification_code=${@verification_code}"/>
+        <bm:query-field name="contract_code" queryExpression="contract_code=${@contract_code}"/>
+        <bm:query-field name="bond_item_code" queryExpression="bond_item_code=${@bond_item_code}"/>
+        <bm:query-field name="verification_source_code" queryExpression="verification_source_code=${@verification_source_code}"/>
+        <bm:query-field name="staff_name" queryExpression="staff_name=${@staff_name}"/>
+        <bm:query-field name="creation_date_from" queryExpression="hrms_verification.creation_date &gt;= to_date(${@creation_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="creation_date_to" queryExpression="hrms_verification.creation_date &lt;= to_date(${@creation_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+    </bm:query-fields>
+    <bm:data-filters>
+        <bm:data-filter name="staff_id" expression="hrms_verification.staff_id = hrms_check_in_staff.check_in_staff_id and hrms_verification_detail.verification_id = hrms_verification.verification_id"/>
+    </bm:data-filters>
+</bm:model>

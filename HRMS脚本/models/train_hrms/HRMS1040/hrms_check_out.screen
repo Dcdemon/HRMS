@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+    		function HRMS1040_resetQuery() {
+                $('HRMS1040_check_out_query_ds').reset();
+        	}
+        	
+        	function HRMS1040_checkOut(){
+        		if($('HRMS1040_check_out_result_ds').getSelected().length!=1){
+	            	Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+	                return ;
+	            }
+	            if($('HRMS1040_check_out_result_ds').getSelected()[0].get('check_in_status_code')!='CHECKED_IN'){
+	                Aurora.showMessage('','${l:HRMS_RENT_PROCESS_RECORD.NOT_CHECK_IN_CAN_NOT_CHECK_OUT}');
+	                return ;
+	            }
+	            $('HRMS1040_check_out_result_ds').submitSelected();
+        	}
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1040_check_out_sex_ds" lookupCode="HRMS_CODING_VALUE_SEX"/>
+            <a:dataSet id="HRMS1040_check_out_department_ds" lookupCode="HRMS_CODING_VALUE_DEPARTMENT"/>
+            <a:dataSet id="HRMS1040_check_out_base_location_ds" lookupCode="HRMS_CODING_VALUE_BASE_LOCATION"/>
+            <a:dataSet id="HRMS1040_check_out_query_ds">
+                <a:fields>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="sex" displayField="code_value_name" options="HRMS1040_check_out_sex_ds" prompt="HRMS_CHECK_IN_STAFF.SEX" returnField="sex_code" valueField="code_value"/>
+                    <a:field name="department" displayField="code_value_name" options="HRMS1040_check_out_department_ds" prompt="HRMS_CHECK_IN_STAFF.DEPARTMENT" returnField="department_code" valueField="code_value"/>
+                    <a:field name="base_location" displayField="code_value_name" options="HRMS1040_check_out_base_location_ds" prompt="HRMS_CHECK_IN_STAFF.BASE_LOCATION" returnField="base_location_code" valueField="code_value"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="check_in_date_from" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE_FROM"/>
+                    <a:field name="check_in_date_to" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE_TO"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1040_check_out_result_ds" autoQuery="true" model="train_hrms.HRMS1040.hrms_check_out" queryDataSet="HRMS1040_check_out_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="rent_process_record_id"/>
+                    <a:field name="contract_id"/>
+                    <a:field name="check_in_staff_id"/>
+                    <a:field name="check_in_status_code"/>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="sex" prompt="HRMS_CHECK_IN_STAFF.SEX"/>
+                    <a:field name="department" prompt="HRMS_CHECK_IN_STAFF.DEPARTMENT"/>
+                    <a:field name="base_location" prompt="HRMS_CHECK_IN_STAFF.BASE_LOCATION"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="house_type" prompt="HRMS_HOUSE.HOUSE_TYPE"/>
+                    <a:field name="check_in_date" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE"/>
+                    <a:field name="living_day" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DAYS"/>
+                    <a:field name="check_in_status" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_STATUS"/>
+                    <a:field name="check_out_date" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_OUT_DATE" required="true"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1040_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1040_check_out_query_ds" resultTarget="HRMS1040_check_out_result_ds" width="1290">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="job_number" bindTarget="HRMS1040_check_out_query_ds"/>
+                        <a:textField name="staff_name" bindTarget="HRMS1040_check_out_query_ds"/>
+                        <a:comboBox name="sex" bindTarget="HRMS1040_check_out_query_ds"/>
+                        <a:comboBox name="department" bindTarget="HRMS1040_check_out_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:comboBox name="base_location" bindTarget="HRMS1040_check_out_query_ds"/>
+                        <a:textField name="house_abbreviation" bindTarget="HRMS1040_check_out_query_ds"/>
+                        <a:datePicker name="check_in_date_from" bindTarget="HRMS1040_check_out_query_ds"/>
+                        <a:datePicker name="check_in_date_to" bindTarget="HRMS1040_check_out_query_ds"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="tel" bindTarget="HRMS1040_check_out_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid bindTarget="HRMS1040_check_out_result_ds" marginHeight="150" navBar="true" width="1290">
+                <a:columns>
+                    <a:column name="rent_process_record_id" hidden="true"/>
+                    <a:column name="contract_id" hidden="true"/>
+                    <a:column name="check_in_staff_id" hidden="true"/>
+                    <a:column name="check_in_status_code" hidden="true"/>
+                    <a:column name="contract_code" align="center" maxAdjustWidth="130" width="130"/>
+                    <a:column name="job_number" align="center" width="100"/>
+                    <a:column name="staff_name" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="sex" align="center" width="80"/>
+                    <a:column name="department" align="center" maxAdjustWidth="90" width="90"/>
+                    <a:column name="base_location" align="center" width="100"/>
+                    <a:column name="tel" align="center" width="130"/>
+                    <a:column name="house_abbreviation" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="house_type" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="check_in_date" align="center" width="120"/>
+                    <a:column name="living_day" align="center" maxAdjustWidth="100" width="60"/>
+                    <a:column name="check_in_status" align="center" width="104"/>
+                </a:columns>
+            </a:grid>
+            <a:hBox>
+                <a:datePicker name="check_out_date" bindTarget="HRMS1040_check_out_result_ds"/>
+                <a:gridButton click="HRMS1040_checkOut" text="HRMS_RENT_PROCESS_RECORD.CHECK_OUT" width="80"/>
+            </a:hBox>
+        </a:screenBody>
+    </a:view>
+</a:screen>

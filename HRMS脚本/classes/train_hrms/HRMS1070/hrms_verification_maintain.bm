@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        receipt_id,
+                        staff_id,
+                        receipt_code,
+                        TO_CHAR(hrms_receipt.creation_date, 'yyyy-mm-dd') AS creation_date,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_RECEIPT_METHOD', 
+                        								   p_code_value => receipt_method_code) AS receipt_method,
+                        staff_name,
+                        receipt_amount,
+                        write_off_amount,
+                        receipt_amount-write_off_amount AS unapplied_amount,
+                        hrms_receipt.remark
+                    FROM
+                        hrms_receipt,
+                        hrms_check_in_staff #WHERE_CLAUSE#
+                    )v
+            ]]></bm:query-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:query-sql><![CDATA[
+                BEGIN
+                    hrms_verification_pkg.insert_new_verification(p_receipt_id => ${@receipt_id}, 
+                    											  p_total_fee => ${@total_fee}, 
+                    											  p_contract_id => ${@contract_id}, 
+                    											  p_staff_id => ${@staff_id}, 
+                    											  p_electricity_fee_this => ${@electricity_fee_this}, 
+                    											  p_network_fee_this => ${@network_fee_this}, 
+                    											  p_rent_fee_this => ${@rent_fee_this}, 
+                    											  p_tv_fee_this => ${@tv_fee_this}, 
+                    											  p_water_fee_this => ${@water_fee_this}, 
+                    											  p_verification_code => ${@verification_code}, 
+                    											  p_contract_code => ${@contract_code}, 
+                    											  p_verification_source_code => ${@verification_source_code}, 
+                    											  p_receipt_code => ${@receipt_code}, 
+                    											  p_currency_code => ${@currency_code}, 
+                    											  p_verification_remark => ${@verification_remark}, 
+                    											  p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="staff_id" expression="hrms_receipt.staff_id = hrms_check_in_staff.check_in_staff_id"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="staff_id" queryExpression="hrms_receipt.staff_id=${@staff_id}"/>
+        <bm:query-field name="currency" queryExpression="currency_code=${@currency_code}"/>
+        <bm:query-field name="receipt_source" queryExpression="receipt_source_code=${@receipt_source_code}"/>
+    </bm:query-fields>
+</bm:model>

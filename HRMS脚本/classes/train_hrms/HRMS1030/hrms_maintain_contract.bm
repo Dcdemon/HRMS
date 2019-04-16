@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="insert">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_contract_pkg.insert_new_contract(p_contract_code => ${@contract_code}, 
+                    									  p_start_date => ${@start_date}, 
+                    									  p_end_date => ${@end_date}, 
+                    									  p_house_id => ${@house_id}, 
+                    									  p_month_rent_fee => ${@month_rent_fee}, 
+                    									  p_rent_period => ${@rent_period}, 
+                    									  p_agency_fee => ${@agency_fee}, 
+                    									  p_invoice_tax => ${@invoice_tax}, 
+                    									  p_total_fee => ${@total_fee}, 
+                    									  p_currency_type_code => ${@currency_type_code}, 
+                    									  p_rent_remark => ${@rent_remark}, 
+                    									  p_contract_remark => ${@contract_remark}, 
+                    									  p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_contract_pkg.update_contract(p_contract_id => ${@contract_id}, 
+                    								  p_start_date => ${@start_date}, 
+                    								  p_end_date => ${@end_date}, 
+                    								  p_house_id => ${@house_id}, 
+                    								  p_month_rent_fee => ${@month_rent_fee}, 
+                    								  p_rent_period => ${@rent_period}, 
+                    								  p_agency_fee => ${@agency_fee}, 
+                    								  p_invoice_tax => ${@invoice_tax}, 
+                    								  p_total_fee => ${@total_fee}, 
+                    								  p_currency_type_code => ${@currency_type_code}, 
+                    								  p_rent_remark => ${@rent_remark}, 
+                    								  p_contract_remark => ${@contract_remark}, 
+                    								  p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

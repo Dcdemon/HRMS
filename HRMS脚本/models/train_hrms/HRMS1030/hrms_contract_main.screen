@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="HRMS1030_contract_maintain_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1030/hrms_contract_maintain.screen"/>
+        <a:link id="HRMS1030_contract_confirm_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1030/hrms_contract_confirm.screen"/>
+        <a:link id="HRMS1030_check_in_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1040/hrms_check_in.screen"/>
+        <script><![CDATA[
+
+        function HRMS1030_resetQuery() {
+                $('HRMS1030_contract_main_query_ds').reset();
+        }
+        
+    	function HRMS1030_openNewMaintainScreen(){
+    			new Aurora.Window({
+                    id: 'HRMS1030_new_contract_maintain_screen',
+                    url: $('HRMS1030_contract_maintain_screen').getUrl(),
+                    fullScreen: true
+                });
+    	}
+    	
+    	function HRMS1030_contractConfirm(contract_code){
+                new Aurora.Window({
+                    id: 'HRMS1030_new_contract_confirm_screen',
+                    url: $('HRMS1030_contract_confirm_screen').getUrl()+"?contract_code="+contract_code,
+                    fullScreen: 'true'
+                });
+        }
+    		
+    	function HRMS1030_contractConfirmRender(value, record, name){
+                return '<a href="#" onclick="javascript:HRMS1030_contractConfirm(\'' + value + '\')">' + value + '</a>';
+        }
+        
+        function HRMS1030_updateContracts(){
+			if($('HRMS1030_contract_main_result_ds').getSelected().length!=1){
+            	Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+                return ;
+            }
+            if($('HRMS1030_contract_main_result_ds').getSelected()[0].get('contract_status_code')!='CREATION'){
+                Aurora.showMessage('','${l:HRMS_CONTRACT.CONTRACT_STATUS_IS_NOT_CREATED}');
+                return ;
+            }
+            var contract_id = $('HRMS1030_contract_main_result_ds').getSelected()[0].get('contract_id');
+            new Aurora.Window({
+                    id: 'HRMS1030_new_contract_maintain_screen',
+                    url: $('HRMS1030_contract_maintain_screen').getUrl()+"?contract_id="+contract_id,
+                    fullScreen: true
+            });
+        }
+        
+        function HRMS1030_checkIn(){
+            if($('HRMS1030_contract_main_result_ds').getSelected().length!=1){
+            	Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+                return ;
+            }
+            if($('HRMS1030_contract_main_result_ds').getSelected()[0].get('contract_status_code')!='CONFIRM'){
+                Aurora.showMessage('','${l:HRMS_CONTRACT.CONTRACT_STATUS_IS_NOT_CONFIRM}');
+                return ;
+            }
+            var contract_id = $('HRMS1030_contract_main_result_ds').getSelected()[0].get('contract_id');
+            new Aurora.Window({
+                    id: 'HRMS1030_new_check_in_screen',
+                    url: $('HRMS1030_check_in_screen').getUrl()+"?contract_id="+contract_id,
+                    fullScreen: true
+            });
+        }
+    		
+    		
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1030_contract_main_house_type_ds" lookupCode="HRMS_CODING_VALUE_HOUSE_TYPE"/>
+            <a:dataSet id="HRMS1030_contract_main_query_ds">
+                <a:fields>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="landlord_name" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+                    <a:field name="landlord_tel" prompt="HRMS_HOUSE.LANDLORD_TEL"/>
+                    <a:field name="house_type" displayField="code_value_name" options="HRMS1030_contract_main_house_type_ds" prompt="HRMS_HOUSE.HOUSE_TYPE" returnField="house_type_code" valueField="code_value"/>
+                    <a:field name="intermediary_name" prompt="HRMS_HOUSE.INTERMEDIARY_NAME"/>
+                    <a:field name="intermediary_contact" prompt="HRMS_HOUSE.INTERMEDIARY_CONTACT"/>
+                    <a:field name="start_date_from" prompt="HRMS_CONTRACT.START_DATE_FROM"/>
+                    <a:field name="start_date_to" prompt="HRMS_CONTRACT.START_DATE_TO"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1030_contract_main_result_ds" autoQuery="true" model="train_hrms.HRMS1030.hrms_query_contract" queryDataSet="HRMS1030_contract_main_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="contract_id"/>
+                    <a:field name="contract_status_code"/>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="start_date" prompt="HRMS_CONTRACT.START_DATE"/>
+                    <a:field name="end_date" prompt="HRMS_CONTRACT.END_DATE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="house_type" prompt="HRMS_HOUSE.HOUSE_TYPE"/>
+                    <a:field name="bed_number" prompt="HRMS_HOUSE.BED_NUMBER"/>
+                    <a:field name="living_person" prompt="HRMS_HOUSE.LIVING_PERSON"/>
+                    <a:field name="rest_bed" prompt="HRMS_HOUSE.REST_BED"/>
+                    <a:field name="landlord_name" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+                    <a:field name="landlord_tel" prompt="HRMS_HOUSE.LANDLORD_TEL"/>
+                    <a:field name="intermediary_name" prompt="HRMS_HOUSE.INTERMEDIARY_NAME"/>
+                    <a:field name="contract_status" prompt="HRMS_CONTRACT.CONTRACT_STATUS"/>
+                    <a:field name="contract_remark" prompt="HRMS_CONTRACT.CONTRACT_REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton bind="HRMS1030_contracts_grid" type="excel" width="80"/>
+                <a:gridButton click="HRMS1030_openNewMaintainScreen" text="HRMS_HOUSE.ADD" width="80"/>
+                <a:gridButton click="HRMS1030_updateContracts" text="HRMS_HOUSE.UPDATE" width="80"/>
+                <a:gridButton click="HRMS1030_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+                <a:gridButton click="HRMS1030_checkIn" text="HRMS_CONTRACT.CHECK_IN" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1030_contract_main_query_ds" resultTarget="HRMS1030_contract_main_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="house_abbreviation" bindTarget="HRMS1030_contract_main_query_ds"/>
+                        <a:textField name="landlord_name" bindTarget="HRMS1030_contract_main_query_ds"/>
+                        <a:textField name="landlord_tel" bindTarget="HRMS1030_contract_main_query_ds"/>
+                        <a:comboBox name="house_type" bindTarget="HRMS1030_contract_main_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="intermediary_name" bindTarget="HRMS1030_contract_main_query_ds"/>
+                        <a:textField name="intermediary_contact" bindTarget="HRMS1030_contract_main_query_ds"/>
+                        <a:datePicker name="start_date_from" bindTarget="HRMS1030_contract_main_query_ds"/>
+                        <a:datePicker name="start_date_to" bindTarget="HRMS1030_contract_main_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1030_contracts_grid" bindTarget="HRMS1030_contract_main_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="contract_id" hidden="true"/>
+                    <a:column name="contract_status_code" hidden="true"/>
+                    <a:column name="contract_code" align="center" maxAdjustWidth="130" renderer="HRMS1030_contractConfirmRender" width="130"/>
+                    <a:column name="start_date" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="end_date" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="house_abbreviation" align="center" maxAdjustWidth="150" width="150"/>
+                    <a:column name="house_type" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="bed_number" align="center" maxAdjustWidth="60" width="60"/>
+                    <a:column name="living_person" align="center" maxAdjustWidth="60" width="60"/>
+                    <a:column name="rest_bed" align="center" maxAdjustWidth="60" width="60"/>
+                    <a:column name="landlord_name" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="landlord_tel" align="center" maxAdjustWidth="110" width="110"/>
+                    <a:column name="intermediary_name" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="contract_status" align="center" maxAdjustWidth="90" width="90"/>
+                    <a:column name="contract_remark" align="center" maxAdjustWidth="154" width="154"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

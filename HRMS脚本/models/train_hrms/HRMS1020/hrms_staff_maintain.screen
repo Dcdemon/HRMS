@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure>
+        <a:model-query model="train_hrms.HRMS1020.hrms_get_new_staff_code" rootPath="init_data"/>
+    </a:init-procedure>
+    <a:view>
+        <script><![CDATA[
+			function HRMS1020_closeWindow() {
+	        	$('HRMS1020_new_staff_maintain_screen').close();
+	        }
+	        
+	        //保存
+	        function HRMS1020_save(){
+	            console.log($('HRMS1020_staff_maintain_ds'));
+	            $('HRMS1020_staff_maintain_ds').submit();
+	        }
+	        
+		]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1020_staff_maintain_sex_ds" lookupCode="HRMS_CODING_VALUE_SEX"/>
+            <a:dataSet id="HRMS1020_staff_maintain_department" lookupCode="HRMS_CODING_VALUE_DEPARTMENT"/>
+            <a:dataSet id="HRMS1020_staff_maintain_base_location_ds" lookupCode="HRMS_CODING_VALUE_BASE_LOCATION"/>
+            <a:dataSet id="HRMS1020_staff_maintain_ds" autoQuery="true" model="train_hrms.HRMS1020.hrms_maintain_staff" queryUrl="${/request/@context_path}/autocrud/train_hrms.HRMS1020.hrms_query_staff/query?check_in_staff_id=${/parameter/@check_in_staff_id}">
+                <a:fields>
+                    <a:field name="staff_code" defaultValue="${/model/init_data/record/@staff_code}" prompt="HRMS_CHECK_IN_STAFF.STAFF_CODE" readOnly="true"/>
+                    <a:field name="job_number" lovGridHeight="300" lovHeight="460" lovService="train_hrms.HRMS1020.hrms_query_job_number_lov" lovWidth="500" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER" required="true" title="HRMS_CHECK_IN_STAFF.JOB_NUMBER">
+                        <a:mapping>
+                            <a:map from="job_number" to="job_number"/>
+                            <a:map from="staff_name" to="staff_name"/>
+                            <a:map from="tel" to="tel"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME" required="true"/>
+                    <a:field name="sex" displayField="code_value_name" options="HRMS1020_staff_maintain_sex_ds" prompt="HRMS_CHECK_IN_STAFF.SEX" required="true" returnField="sex_code" valueField="code_value"/>
+                    <a:field name="department" displayField="code_value_name" options="HRMS1020_staff_maintain_department" prompt="HRMS_CHECK_IN_STAFF.DEPARTMENT" required="true" returnField="department_code" valueField="code_value"/>
+                    <a:field name="base_location" displayField="code_value_name" options="HRMS1020_staff_maintain_base_location_ds" prompt="HRMS_CHECK_IN_STAFF.BASE_LOCATION" required="true" returnField="base_location_code" valueField="code_value"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="email_address" prompt="HRMS_CHECK_IN_STAFF.EMAIL_ADDRESS"/>
+                    <a:field name="remark" prompt="HRMS_CHECK_IN_STAFF.REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1020_save" text="HRMS_HOUSE.SAVE" width="80"/>
+                <a:toolbarButton click="HRMS1020_closeWindow" text="HRMS_HOUSE.CLOSE" width="80"/>
+            </a:screenTopToolbar>
+            <a:form bindTarget="HRMS1020_staff_maintain_ds">
+                <a:hBox labelWidth="100">
+                    <a:textField name="staff_code" bindTarget="HRMS1020_staff_maintain_ds"/>
+                    <a:lov name="job_number" bindTarget="HRMS1020_staff_maintain_ds" editable="true"/>
+                    <a:textField name="staff_name" bindTarget="HRMS1020_staff_maintain_ds"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:comboBox name="sex" bindTarget="HRMS1020_staff_maintain_ds"/>
+                    <a:comboBox name="department" bindTarget="HRMS1020_staff_maintain_ds"/>
+                    <a:comboBox name="base_location" bindTarget="HRMS1020_staff_maintain_ds"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:textField name="tel" bindTarget="HRMS1020_staff_maintain_ds"/>
+                    <a:textField name="email_address" bindTarget="HRMS1020_staff_maintain_ds" width="230"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:textArea name="remark" bindTarget="HRMS1020_staff_maintain_ds" width="480"/>
+                </a:hBox>
+            </a:form>
+        </a:screenBody>
+    </a:view>
+</a:screen>

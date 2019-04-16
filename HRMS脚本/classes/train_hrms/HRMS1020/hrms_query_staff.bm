@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        check_in_staff_id,
+                        staff_code,
+                        job_number,
+                        staff_name,
+                        sex_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_SEX', p_code_value => sex_code) AS sex,
+                        department_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_DEPARTMENT', p_code_value => department_code) AS department,
+                        base_location_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BASE_LOCATION', p_code_value => base_location_code) AS base_location,
+                        tel,
+                        check_in_status_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CHECK_IN_STATUS', p_code_value => check_in_status_code) AS check_in_status,
+                        email_address,
+                        remark,
+                        TO_CHAR(creation_date,'yyyy-mm-dd') AS creation_date
+                    FROM
+                        hrms_check_in_staff #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:query-fields>
+        <bm:query-field name="job_number" queryExpression="job_number=${@job_number}"/>
+        <bm:query-field name="staff_name" queryExpression="staff_name like &apos;%&apos;||${@staff_name}||&apos;%&apos;"/>
+        <bm:query-field name="sex_code" queryExpression="sex_code=${@sex_code}"/>
+        <bm:query-field name="department_code" queryExpression="department_code=${@department_code}"/>
+        <bm:query-field name="check_in_status_code" queryExpression="check_in_status_code=${@check_in_status_code}"/>
+        <bm:query-field name="base_location_code" queryExpression="base_location_code=${@base_location_code}"/>
+        <bm:query-field name="tel" queryExpression="tel like &apos;%&apos;||${@tel}||&apos;%&apos;"/>
+        <bm:query-field name="create_date_from" queryExpression="creation_date &gt;= to_date(${@create_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;) "/>
+        <bm:query-field name="create_date_to" queryExpression="creation_date &lt;= to_date(${@create_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="staff_code" queryExpression="staff_code=${@staff_code}"/>
+        <bm:query-field name="check_in_staff_id" queryExpression="check_in_staff_id=${@check_in_staff_id}"/>
+    </bm:query-fields>
+</bm:model>

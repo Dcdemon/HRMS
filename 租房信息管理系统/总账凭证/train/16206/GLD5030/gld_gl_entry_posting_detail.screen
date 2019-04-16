@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D  
+    $Date: 2017-8-11   
+    $Revision: 1.0  
+    $Purpose: 总账凭证信息过账明细界面
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure>
+        <a:model-query autoCount="false" fetchAll="true" model="train.16206.GLD5030.gld_gl_entry_head_post_query" rootPath="head_info"/>
+    </a:init-procedure>
+    <a:view>
+        <div/>
+        <script><![CDATA[
+            function closeAssignPage(){
+                $('gld_gl_entry_posting_window').close();
+            }
+            
+            //纯粹是为了显示“总金额”这三个字
+            function tolRenderer(records, name) {
+                var sum = 0;
+                for (var i = 0;i < records.length;i++) {
+                    var r = records[i].get(name);
+                    var n = parseFloat(r);
+                    if (!isNaN(n)) {
+                        sum += n;
+                    }
+                }
+                sum = Math.round(sum * 100) / 100; 
+                return '<font>${l:合计}</font>';
+            }
+            
+            function sumRenderer(records, name) {
+                var sum = 0;
+                for (var i = 0;i < records.length;i++) {
+                    var r = records[i].get(name);
+                    var n = parseFloat(r);
+                    if (!isNaN(n)) {
+                        sum += n;
+                    }
+                }
+                sum = Math.round(sum * 100) / 100; 
+                return sum;
+            }
+        ]]></script>
+        <a:dataSets>
+            <!-- 总表 -->
+            <a:dataSet id="gld_gl_entry_head_info_ds">
+                <a:datas dataSource="head_info"/>
+                <a:fields>
+                    <!-- 凭证总表主键id -->
+                    <a:field name="gl_entry_head_id"/>
+                    <!-- 凭证号 -->
+                    <a:field name="gl_entry_code"/>
+                    <!-- 日期 -->
+                    <a:field name="create_date"/>
+                    <!-- 期间 -->
+                    <a:field name="period"/>
+                    <!-- 附件 -->
+                    <a:field name="attachement"/>
+                    <!-- 币种-->
+                    <a:field name="currency_code"/>
+                    <!-- 汇率 -->
+                    <a:field name="exchange_rate"/>
+                    <!-- 头摘要 -->
+                    <a:field name="head_summary"/>
+                </a:fields>
+            </a:dataSet>
+            <!-- 子表 -->
+            <a:dataSet id="gld_gl_entry_line_infor_ds" autoQuery="true" bindName="lines" bindTarget="gld_gl_entry_head_info_ds" fetchAll="true" model="train.16206.GLD5020.gld_gl_entry_line_query" pageSize="100" queryUrl="${/request/@context_path}/autocrud/train.16206.GLD5020.gld_gl_entry_line_query/query?gl_entry_head_id=${/parameter/@gl_entry_head_id}">
+                <a:fields>
+                    <!-- 主表id -->
+                    <a:field name="gl_entry_head_id"/>
+                    <!-- 子表主键id -->
+                    <a:field name="gl_entry_line_id"/>
+                    <!-- 行摘要 -->
+                    <a:field name="line_summary"/>
+                    <!-- 会计科目 -->
+                    <a:field name="account_id"/>
+                    <!-- 借方原币 -->
+                    <a:field name="dr_amount"/>
+                    <!-- 贷方原币 -->
+                    <a:field name="cr_amount"/>
+                    <!-- 借方本币 -->
+                    <a:field name="dr_functional"/>
+                    <!-- 贷方本币 -->
+                    <a:field name="cr_functional"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:toolbarButton click="closeAssignPage" text="HAP_CLOSE" width="80"/>
+            </a:screenTopToolbar>
+            <a:form id="gld_gl_entry_head_form">
+                <a:box id="gld_gl_entry_head_box" column="4" marginWidth="206" showBorder="false">
+                    <a:textField name="gl_entry_code" bindTarget="gld_gl_entry_head_info_ds" prompt="凭证号" readOnly="true"/>
+                    <a:textField name="create_date" bindTarget="gld_gl_entry_head_info_ds" prompt="日期" readOnly="true"/>
+                    <a:textField name="period" bindTarget="gld_gl_entry_head_info_ds" prompt="期间" readOnly="true"/>
+                    <a:textField name="attachement" bindTarget="gld_gl_entry_head_info_ds" prompt="附件" readOnly="true"/>
+                    <a:textField name="currency_code" bindTarget="gld_gl_entry_head_info_ds" prompt="币种" readOnly="true"/>
+                    <a:textField name="exchange_rate_type" bindTarget="gld_gl_entry_head_info_ds" prompt="汇率类型" readOnly="true"/>
+                    <a:textField name="exchange_rate" bindTarget="gld_gl_entry_head_info_ds" prompt="汇率" readOnly="true"/>
+                    <a:textField name="head_summary" bindTarget="gld_gl_entry_head_info_ds" prompt="摘要" readOnly="true"/>
+                    <a:textField name="auditor_name" bindTarget="gld_gl_entry_head_info_ds" prompt="审核" readOnly="true"/>
+                    <a:textField name="documentmaker_name" bindTarget="gld_gl_entry_head_info_ds" prompt="制单" readOnly="true"/>
+                </a:box>
+            </a:form>
+            <a:grid id="line_grid" bindTarget="gld_gl_entry_line_infor_ds" marginHeight="375" navBar="true" width="1210">
+                <a:columns>
+                    <a:column name="line_summary" prompt="摘要" width="120"/>
+                    <a:column name="account_name" footerRenderer="tolRenderer" prompt="会计科目" width="300"/>
+                    <a:column name="dr_amount" footerRenderer="sumRenderer" prompt="借方原币"/>
+                    <a:column name="cr_amount" footerRenderer="sumRenderer" prompt="贷方原币"/>
+                    <a:column name="dr_functional" footerRenderer="sumRenderer" prompt="借方本币"/>
+                    <a:column name="cr_functional" footerRenderer="sumRenderer" prompt="贷方本币"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

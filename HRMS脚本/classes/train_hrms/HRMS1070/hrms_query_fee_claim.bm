@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        fee_claim_id,
+                        contract_id,
+                        staff_id,
+                        rent_fee_remain,
+                        electricity_fee_remain,
+                        water_fee_remain,
+                        network_fee_remain,
+                        tv_fee_remain
+                    FROM
+                        hrms_fee_claim
+                    WHERE
+                        contract_id = ${@contract_id} AND
+                        staff_id    = ${@staff_id}
+                    )v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

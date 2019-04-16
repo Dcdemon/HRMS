@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="HRMS1020_staff_maintain_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1020/hrms_staff_maintain.screen"/>
+        <a:link id="HRMS1020_staff_detail_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1020/hrms_staff_detail.screen"/>
+        <script><![CDATA[
+    		function HRMS1020_openNewMaintainScreen(){
+    			new Aurora.Window({
+                    id: 'HRMS1020_new_staff_maintain_screen',
+                    url: $('HRMS1020_staff_maintain_screen').getUrl(),
+                    fullScreen: true
+                });
+    		}
+    		
+    		function HRMS1020_resetQuery() {
+                $('HRMS1020_staff_main_query_ds').reset();
+            }
+            
+            function HRMS1020_deleteStaff() {
+                if($('HRMS1020_staff_main_result_ds').getSelected().length!=1){
+                    Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+                    return ;
+                }
+                if($('HRMS1020_staff_main_result_ds').getSelected()[0].get('check_in_status_code')=='CHECKED_IN'){
+                    Aurora.showMessage('','${l:HRMS_1040.ALREADY_LIVE_STATUS}');
+                    return ;
+                }
+                new Aurora.showConfirm('','${l:HRMS_1010.SURE_TO_DELETE}',function(){
+                    var check_in_staff_id = $('HRMS1020_staff_main_result_ds').getSelected()[0].get('check_in_staff_id');
+		            $('HRMS1020_staff_main_result_ds').submit("${/request/@context_path}/autocrud/train_hrms.HRMS1020.hrms_delete_staff/update?check_in_staff_id="+check_in_staff_id);
+		            window.location.reload();
+                });
+            }
+            
+            function HRMS1020_updateStaff(){
+                if($('HRMS1020_staff_main_result_ds').getSelected().length!=1){
+                    Aurora.showMessage('','${l:HRMS_1010.NOT_SELECT_ONE_LINE}');
+                    return ;
+                }
+                if($('HRMS1020_staff_main_result_ds').getSelected()[0].get('check_in_status_code')=='CHECKED_IN'){
+                    Aurora.showMessage('','${l:HRMS_1040.ALREADY_LIVE_STATUS_NOT_UPDATE}');
+                    return ;
+                }
+                var check_in_staff_id = $('HRMS1020_staff_main_result_ds').getSelected()[0].get('check_in_staff_id');
+                new Aurora.Window({
+                    id: 'HRMS1020_new_staff_maintain_screen',
+                    url: $('HRMS1020_staff_maintain_screen').getUrl()+"?check_in_staff_id="+check_in_staff_id,
+                    fullScreen: true
+                });
+            }
+            
+            function HRMS1020_staffDetail(staff_code){
+                new Aurora.Window({
+                    id: 'HRMS1020_new_staff_detail_screen',
+                    url: $('HRMS1020_staff_detail_screen').getUrl()+"?staff_code="+staff_code,
+                    fullScreen: 'true'
+                });
+            }
+            
+            function HRMS1020_staffDetailRender(value, record, name){
+                return '<a href="#" onclick="javascript:HRMS1020_staffDetail(\'' + value + '\')">' + value + '</a>';
+            }
+            
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1020_staff_main_sex_ds" lookupCode="HRMS_CODING_VALUE_SEX"/>
+            <a:dataSet id="HRMS1020_staff_main_department_ds" lookupCode="HRMS_CODING_VALUE_DEPARTMENT"/>
+            <a:dataSet id="HRMS1020_staff_main_base_location_ds" lookupCode="HRMS_CODING_VALUE_BASE_LOCATION"/>
+            <a:dataSet id="HRMS1020_staff_main_check_in_status_ds" lookupCode="HRMS_CODING_VALUE_CHECK_IN_STATUS"/>
+            <a:dataSet id="HRMS1020_staff_main_query_ds">
+                <a:fields>
+                    <a:field name="job_number" autoComplete="false" lovGridHeight="300" lovHeight="460" lovService="train_hrms.HRMS1020.hrms_query_all_job_number_lov" lovWidth="500" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER" title="HRMS_CHECK_IN_STAFF.JOB_NUMBER">
+                        <a:mapping>
+                            <a:map from="job_number" to="job_number"/>
+                            <a:map from="staff_name" to="staff_name"/>
+                            <a:map from="tel" to="tel"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="sex" displayField="code_value_name" options="HRMS1020_staff_main_sex_ds" prompt="HRMS_CHECK_IN_STAFF.SEX" returnField="sex_code" valueField="code_value"/>
+                    <a:field name="department" displayField="code_value_name" options="HRMS1020_staff_main_department_ds" prompt="HRMS_CHECK_IN_STAFF.DEPARTMENT" returnField="department_code" valueField="code_value"/>
+                    <a:field name="base_location" displayField="code_value_name" options="HRMS1020_staff_main_base_location_ds" prompt="HRMS_CHECK_IN_STAFF.BASE_LOCATION" returnField="base_location_code" valueField="code_value"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="create_date_from" prompt="HRMS_CHECK_IN_STAFF.CREATE_DATE_FROM"/>
+                    <a:field name="create_date_to" prompt="HRMS_CHECK_IN_STAFF.CREATE_DATE_TO"/>
+                    <a:field name="check_in_status" displayField="code_value_name" options="HRMS1020_staff_main_check_in_status_ds" prompt="HRMS_CHECK_IN_STAFF.CHECK_IN_STATUS" returnField="check_in_status_code" valueField="code_value"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1020_staff_main_result_ds" autoQuery="true" fetchAll="true" model="train_hrms.HRMS1020.hrms_query_staff" queryDataSet="HRMS1020_staff_main_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="check_in_staff_id"/>
+                    <a:field name="staff_code" prompt="HRMS_CHECK_IN_STAFF.STAFF_CODE"/>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="sex" prompt="HRMS_CHECK_IN_STAFF.SEX"/>
+                    <a:field name="department" prompt="HRMS_CHECK_IN_STAFF.DEPARTMENT"/>
+                    <a:field name="base_location" prompt="HRMS_CHECK_IN_STAFF.BASE_LOCATION"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="email_address" prompt="HRMS_CHECK_IN_STAFF.EMAIL_ADDRESS"/>
+                    <a:field name="creation_date" prompt="HRMS_CHECK_IN_STAFF.CREATION_DATE"/>
+                    <a:field name="check_in_status" prompt="HRMS_CHECK_IN_STAFF.CHECK_IN_STATUS"/>
+                    <a:field name="remark" prompt="HRMS_CHECK_IN_STAFF.REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1020_openNewMaintainScreen" text="HAP_NEW" width="80"/>
+                <a:gridButton click="HRMS1020_updateStaff" text="HRMS_CHECK_IN_STAFF.UPDATE" width="80"/>
+                <a:gridButton click="HRMS1020_resetQuery" text="HAP_RESET" width="80"/>
+                <a:gridButton click="HRMS1020_deleteStaff" text="HAP_DELETE" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1020_staff_main_query_ds" resultTarget="HRMS1020_staff_main_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:lov name="job_number" bindTarget="HRMS1020_staff_main_query_ds"/>
+                        <a:textField name="staff_name" bindTarget="HRMS1020_staff_main_query_ds"/>
+                        <a:comboBox name="sex" bindTarget="HRMS1020_staff_main_query_ds"/>
+                        <a:comboBox name="department" bindTarget="HRMS1020_staff_main_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:comboBox name="base_location" bindTarget="HRMS1020_staff_main_query_ds"/>
+                        <a:textField name="tel" bindTarget="HRMS1020_staff_main_query_ds"/>
+                        <a:datePicker name="create_date_from" bindTarget="HRMS1020_staff_main_query_ds"/>
+                        <a:datePicker name="create_date_to" bindTarget="HRMS1020_staff_main_query_ds"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:comboBox name="check_in_status" bindTarget="HRMS1020_staff_main_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid bindTarget="HRMS1020_staff_main_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="check_in_staff_id" hidden="true"/>
+                    <a:column name="staff_code" align="center" maxAdjustWidth="120" renderer="HRMS1020_staffDetailRender" width="120"/>
+                    <a:column name="job_number" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="staff_name" align="center" maxAdjustWidth="90" width="90"/>
+                    <a:column name="sex" align="center" maxAdjustWidth="50" width="50"/>
+                    <a:column name="department" align="center" maxAdjustWidth="90" width="90"/>
+                    <a:column name="base_location" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="tel" align="center" maxAdjustWidth="120" width="120"/>
+                    <a:column name="email_address" align="center" maxAdjustWidth="200" width="200"/>
+                    <a:column name="creation_date" align="center" maxAdjustWidth="100" width="100"/>
+                    <a:column name="check_in_status" align="center" maxAdjustWidth="80" width="80"/>
+                    <a:column name="remark" align="center" maxAdjustWidth="264" width="264"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

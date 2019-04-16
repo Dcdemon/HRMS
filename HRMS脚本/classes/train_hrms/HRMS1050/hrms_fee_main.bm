@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        fee_id,
+                        fee_house_id,
+                        fee_code,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_FEE_ITEM', p_code_value => fee_item_code) AS fee_item,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_FEE_SOURCE', p_code_value => fee_source_code) AS fee_source,
+                        house_abbreviation,
+                        TO_CHAR(start_date,'yyyy-mm-dd') AS start_date,
+                        TO_CHAR(end_date,'yyyy-mm-dd') AS end_date,
+                        fee_cost,
+                        TO_CHAR(hrms_fee.creation_date,'yyyy-mm-dd') AS creation_date
+                    FROM
+                        hrms_fee,
+                        hrms_house #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="fee_house_id" expression="hrms_fee.fee_house_id = hrms_house.house_id"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="fee_code" queryExpression="fee_code like &apos;%&apos;||${@fee_code}||&apos;%&apos;"/>
+        <bm:query-field name="fee_item_code" queryExpression="fee_item_code=${@fee_item_code}"/>
+        <bm:query-field name="fee_source_code" queryExpression="fee_source_code=${@fee_source_code}"/>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="start_date_from" queryExpression="start_date &gt;= to_date(${@start_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="start_date_to" queryExpression="start_date &lt;= to_date(${@start_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="creation_date_from" queryExpression="hrms_fee.creation_date &gt;= to_date(${@creation_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="creation_date_to" queryExpression="hrms_fee.creation_date &lt;= to_date(${@creation_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+    </bm:query-fields>
+</bm:model>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        house_id,
+                        house_abbreviation,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_TYPE', p_code_value => house_type_code) AS house_type,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BED_NUMBER', p_code_value => bed_number_code) AS bed_number,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_AREA', p_code_value => house_area_code) AS house_area,
+                        landlord_name,
+                        landlord_tel,
+                        intermediary_name,
+                        intermediary_contact,
+                        intermediary_tel,
+                        hrms_house_pkg.get_province_name(p_province_code => house_province_code) AS province,
+                        hrms_house_pkg.get_city_name(p_city_code => house_city_code) AS city,
+                        house_detail,
+                        house_remark
+                    FROM
+                        hrms_house #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="house_id" forDisplay="false"/>
+        <bm:field name="house_abbreviation" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+        <bm:field name="house_type" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.HOUSE_TYPE"/>
+        <bm:field name="landlord_name" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+        <bm:field name="landlord_tel" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.LANDLORD_TEL"/>
+        <bm:field name="house_area" forDisplay="false"/>
+        <bm:field name="bed_number" forDisplay="false"/>
+        <bm:field name="intermediary_name" forDisplay="false"/>
+        <bm:field name="intermediary_contact" forDisplay="false"/>
+        <bm:field name="intermediary_tel" forDisplay="false"/>
+        <bm:field name="province" forDisplay="false"/>
+        <bm:field name="city" forDisplay="false"/>
+        <bm:field name="house_detail" forDisplay="false"/>
+        <bm:field name="house_remark" forDisplay="false"/>
+    </bm:fields>
+    <bm:data-filters>
+        <bm:data-filter name="house_status_code" expression="house_status_code=&apos;FREE&apos;"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation like &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="landlord_name" queryExpression="landlord_name like &apos;%&apos;||${@landlord_name}||&apos;%&apos;"/>
+        <bm:query-field name="landlord_tel" queryExpression="landlord_tel like &apos;%&apos;||${@landlord_tel}||&apos;%&apos;"/>
+        <bm:query-field name="house_type" queryExpression="hrms_house_pkg.get_code_value_name(p_code =&gt; &apos;HRMS_CODING_VALUE_HOUSE_TYPE&apos;, p_code_value =&gt; house_type_code) like &apos;%&apos;||${@house_type}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

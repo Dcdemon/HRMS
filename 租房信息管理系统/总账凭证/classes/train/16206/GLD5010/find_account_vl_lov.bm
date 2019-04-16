@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-8
+    $Revision: 1.0  
+    $Purpose: 会计科目查询
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        a.account_id,
+                        a.account_code
+                        ||' '
+                        || a.description description
+                    FROM
+                        gld_accounts_vl a
+                    WHERE
+                        a.account_set_id = 48 AND
+                        a.summary_flag   = 'N' AND
+                        a.enabled_flag   = 'Y'
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="account_id" databaseType="NUMBER" datatype="java.lang.Long" forDisplay="true" forQuery="true" physicalName="ACCOUNT_ID" prompt="ID"/>
+        <bm:field name="description" databaseType="VARCHAR2" datatype="java.lang.String" displayWidth="280" forDisplay="true" forQuery="true" physicalName="DESCRIPTION" prompt="描述"/>
+    </bm:fields>
+    <bm:query-fields>
+        <bm:query-field field="account_id" queryOperator="like"/>
+        <bm:query-field field="description" queryOperator="like"/>
+    </bm:query-fields>
+</bm:model>

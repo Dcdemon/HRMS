@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="delete">
+            <bm:update-sql><![CDATA[
+                DELETE FROM hrms_house WHERE house_id=${@house_id}
+            ]]></bm:update-sql>
+            <bm:parameters>
+                <bm:parameter name="house_id"/>
+            </bm:parameters>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

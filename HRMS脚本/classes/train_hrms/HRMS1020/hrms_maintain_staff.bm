@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="insert">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_staff_pkg.insert_new_staff(p_job_number => ${@job_number}, 
+                    								p_staff_name => ${@staff_name}, 
+                    								p_sex_code => ${@sex_code}, 
+                    								p_department_code => ${@department_code}, 
+                    								p_base_location_code => ${@base_location_code}, 
+                    								p_tel => ${@tel}, 
+                    								p_email_address => ${@email_address}, 
+                    								p_remark => ${@remark}, 
+                    								p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hrms_staff_pkg.update_staff(p_check_in_staff_id => ${@check_in_staff_id}, 
+                    						    p_staff_code => ${@staff_code}, 
+                    						    p_job_number => ${@job_number}, 
+                    						    p_staff_name => ${@staff_name}, 
+                    						    p_sex_code => ${@sex_code}, 
+                    						    p_department_code => ${@department_code}, 
+                    						    p_base_location_code => ${@base_location_code}, 
+                    						    p_tel => ${@tel}, 
+                    						    p_check_in_status_code => ${@check_in_status_code}, 
+                    						    p_email_address => ${@email_address}, 
+                    						    p_remark => ${@remark}, 
+                    						    p_user_id => ${/session/@user_id});
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

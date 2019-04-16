@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure>
+        <a:model-query model="train_hrms.HRMS1050.hrms_get_fee_maintain_init" rootPath="HRMS1050_fee_maintain_init_data"/>
+    </a:init-procedure>
+    <a:view>
+        <script><![CDATA[
+    		function HRMS1050_closeWindow() {
+	        	$('HRMS1050_new_fee_maintain_screen').close();
+	        }
+	        
+	        function HRMS1050_save(){
+	            console.log($('HRMS1050_fee_maintain_ds'));
+	            $('HRMS1050_fee_maintain_ds').submit();
+	        }
+	        
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1050_fee_maintain_fee_item_ds" lookupCode="HRMS_CODING_VALUE_FEE_ITEM"/>
+            <a:dataSet id="HRMS1050_fee_maintain_fee_source_ds" lookupCode="HRMS_CODING_VALUE_FEE_SOURCE"/>
+            <a:dataSet id="HRMS1050_fee_maintain_currency_ds" lookupCode="HRMS_CODING_VALUE_CURRENCY_TYPE"/>
+            <a:dataSet id="HRMS1050_fee_maintain_ds" model="train_hrms.HRMS1050.hrms_fee_maintain">
+                <a:fields>
+                    <a:field name="fee_code" defaultValue="${/model/HRMS1050_fee_maintain_init_data/record/@fee_code}" prompt="HRMS_FEE.FEE_CODE" readOnly="true"/>
+                    <a:field name="creation_date" defaultValue="${/model/HRMS1050_fee_maintain_init_data/record/@creation_date}" prompt="HRMS_FEE.ADD_DATE" readOnly="true" required="true"/>
+                    <a:field name="fee_house_id"/>
+                    <a:field name="start_date" defaultValue="${/model/HRMS1050_fee_maintain_init_data/record/@start_date}" prompt="HRMS_FEE.START_DATE" readOnly="true" required="true"/>
+                    <a:field name="end_date" defaultValue="${/model/HRMS1050_fee_maintain_init_data/record/@end_date}" prompt="HRMS_FEE.END_DATE" readOnly="true" required="true"/>
+                    <a:field name="fee_item" displayField="code_value_name" options="HRMS1050_fee_maintain_fee_item_ds" prompt="HRMS_FEE.FEE_ITEM" required="true" returnField="fee_item_code" valueField="code_value"/>
+                    <a:field name="fee_source" displayField="code_value_name" options="HRMS1050_fee_maintain_fee_source_ds" prompt="HRMS_FEE.FEE_SOURCE" required="true" returnField="fee_source_code" valueField="code_value"/>
+                    <a:field name="house_abbreviation" lovHeight="510" lovService="train_hrms.HRMS1050.hrms_query_house_abbreviation_lov" lovWidth="500" prompt="HRMS_FEE.FEE_OBJECT" required="true">
+                        <a:mapping>
+                            <a:map from="house_abbreviation" to="house_abbreviation"/>
+                            <a:map from="house_id" to="fee_house_id"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="fee_cost" prompt="HRMS_FEE.FEE_COST" required="true"/>
+                    <a:field name="currency" displayField="code_value_name" options="HRMS1050_fee_maintain_currency_ds" prompt="HRMS_RECEIPT.CURRENCY_CODE" required="true" returnField="currency_code" valueField="code_value"/>
+                    <a:field name="remark" prompt="HRMS_HOUSE.REMARK"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1050_save" text="HRMS_HOUSE.SAVE" width="80"/>
+                <a:toolbarButton click="HRMS1050_closeWindow" text="HRMS_HOUSE.CLOSE" width="80"/>
+            </a:screenTopToolbar>
+            <a:form bindTarget="HRMS1050_fee_maintain_ds">
+                <a:hBox>
+                    <a:textField name="fee_code" bindTarget="HRMS1050_fee_maintain_ds"/>
+                    <a:datePicker name="creation_date" bindTarget="HRMS1050_fee_maintain_ds"/>
+                    <a:textField name="fee_house_id" bindTarget="HRMS1050_fee_maintain_ds" hidden="true"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:datePicker name="start_date" bindTarget="HRMS1050_fee_maintain_ds"/>
+                    <a:datePicker name="end_date" bindTarget="HRMS1050_fee_maintain_ds"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:comboBox name="fee_item" bindTarget="HRMS1050_fee_maintain_ds"/>
+                    <a:comboBox name="fee_source" bindTarget="HRMS1050_fee_maintain_ds"/>
+                    <a:lov name="house_abbreviation" bindTarget="HRMS1050_fee_maintain_ds"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:numberField name="fee_cost" bindTarget="HRMS1050_fee_maintain_ds"/>
+                    <a:comboBox name="currency" bindTarget="HRMS1050_fee_maintain_ds"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:textArea name="remark" bindTarget="HRMS1050_fee_maintain_ds" width="380"/>
+                </a:hBox>
+            </a:form>
+        </a:screenBody>
+    </a:view>
+</a:screen>

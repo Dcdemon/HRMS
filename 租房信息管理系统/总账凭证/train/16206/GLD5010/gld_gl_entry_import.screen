@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.Dai  
+    $Date: 2013-8-16
+    $Revision: 1.0  
+    $Purpose: 总帐凭证导入页面
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure>
+        <a:model-query model="train.16206.GLD5010.gld_get_sys_import_header_id" rootPath="batch_id"/>
+    </a:init-procedure>
+    <a:view>
+        <a:link id="gld_gl_entry_import_upload_link" url="${/request/@context_path}/modules/train/16206/GLD5010/gld_gl_entry_import_upload.screen"/>
+        <a:link id="gld_gl_entry_import_link" url="${/request/@context_path}/modules/train/16206/GLD5010/gld_gl_entry_create.screen"/>
+        <a:link id="gld_gl_entry_import_check_link" model="train.16206.GLD5010.check_interface" modelaction="update"/>
+        <a:link id="gld_gl_entry_import_error_link" url="${/request/@context_path}/modules/train/16206/GLD5010/gld_gl_entry_import_error.screen"/>
+        <a:link id="gld_gl_entry_import_load_link" model="db.gld_gl_entry_interface_pkg.load_gld_entry" modelaction="update"/>
+        <a:link id="gld_gl_entry_audit_link" url="${/request/@context_path}/modules/train/16206/GLD5020/gld_gl_entry_audit.screen"/>
+        <script><![CDATA[
+             function loadComplete(){
+                $('result_ds').setQueryParameter('batch_id', '${/model/batch_id/record/@batch_id}');
+                $('result_ds').setQueryParameter("import_flag", "Y");
+                $('result_ds').query();
+            }
+            
+            function loadData() {
+                new Aurora.Window({
+                    url: $('gld_gl_entry_import_upload_link').getUrl() + '?batch_id=${/model/batch_id/record/@batch_id}',
+                    width: 420,
+                    height: 275
+                });
+            }
+            
+            function dispatchCheckData() {
+        	    checkData();
+        	}
+        	
+        	function checkData() {
+                var allData = $('result_ds').getAll();
+                if (allData.length == 0) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:BGT_BUDGET_ITEMS_INTERFACE.CHECK1}');
+                } else {
+                    var param = {};
+                    param['batch_id'] = '${/model/batch_id/record/@batch_id}';
+                    Aurora.request({
+                        url: $('gld_gl_entry_import_check_link').getUrl(),
+                        para: param,
+                        success: function(data) {
+                            if(data.result.return_status) {
+                                if(data.result.return_status == 'SUCCESS') {
+                                    Aurora.showMessage('${l:PROMPT}', '核对成功');
+                                }
+                                else {
+                                    dispatchErrorData();
+                                }
+                            }
+                       		else {
+                       		    Aurora.showErrorMessage('${l:PROMPT.ERROR}', '核对失败');
+                       		}
+                        },
+                        scope: this
+                    });
+                }        	    
+        	}
+        	
+        	function submitData() {
+        	    var allData = $('result_ds').getAll();
+                if (allData.length == 0) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:EXP_REP_PMT_ERROR_LOGS.NO_DATA_SUBMIT}');
+                } else {
+                    var param = {};
+                    param['batch_id'] = '${/model/batch_id/record/@batch_id}';
+                    Aurora.request({
+                        url: $('gld_gl_entry_import_load_link').getUrl(),
+                        para: param,
+                        success: function(data) {
+                             Aurora.showMessage('${l:PROMPT}', '提交成功');
+                             window.location.href = $('gld_gl_entry_audit_link').getUrl();
+                        },
+                        scope: this
+                    });
+                }        	    
+        	}
+        	
+        	function dispatchErrorData() {
+        	    errorData();
+        	}
+        	
+        	function errorData() {
+        	    new Aurora.Window({
+        	        id:"error_window",
+        	        url:$("gld_gl_entry_import_error_link").getUrl() + "?batch_id=${/model/batch_id/record/@batch_id}",
+        	        title:"总账凭证导入核对",
+        	        width:750,
+        	        height:370
+	        	});        	
+        	}
+            
+            
+            function back() {
+                window.location.href = $('gld_gl_entry_import_link').getUrl();
+            }
+            
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="result_ds" autoPageSize="true" fetchAll="false" model="train.16206.GLD5010.gld_gl_entry_interface"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:form height="400" title="凭证导入" width="1290">
+                <a:hBox>
+                    <a:button click="loadData" text="PROMPT.LOADDATA"/>
+                    <a:button click="checkData" text="PROMPT.CHECK"/>
+                    <a:button click="submitData" text="HAP_SUBMIT"/>
+                    <a:button click="errorData" text="PROMPT.ERROR"/>
+                    <a:button click="back" text="HAP_BACK" width="80"/>
+                </a:hBox>
+                <a:grid bindTarget="result_ds" height="400" navBar="true" width="1290">
+                    <a:toolBar>
+                        <a:button type="excel"/>
+                    </a:toolBar>
+                    <a:columns>
+                        <a:column name="batch_line_id" hidden="true" prompt="WFL_NODE_RECIPIENT_SET.RULE_SEQUENCE"/>
+                        <a:column name="gl_entry_code" prompt="凭证编号" width="110"/>
+                        <a:column name="create_date" prompt="日期" width="120"/>
+                        <a:column name="period" prompt="期间" width="80"/>
+                        <a:column name="attachement" prompt="附件" width="60"/>
+                        <a:column name="currency_code" prompt="币种" width="80"/>
+                        <a:column name="exchange_rate_type" prompt="汇率类型" width="100"/>
+                        <a:column name="exchange_rate" prompt="汇率" width="60"/>
+                        <a:column name="head_summary" prompt="头描述" width="120"/>
+                        <a:column name="line_number" prompt="行号" width="40"/>
+                        <a:column name="line_summary" prompt="行摘要" width="120"/>
+                        <a:column name="account_id" prompt="会计科目" width="200"/>
+                        <a:column name="dr_amount" prompt="借方原币金额" width="95"/>
+                        <a:column name="cr_amount" prompt="贷方原币金额" width="100"/>
+                    </a:columns>
+                </a:grid>
+            </a:form>
+        </a:screenBody>
+        <script><![CDATA[
+        	loadComplete();
+        ]]></script>
+    </a:view>
+</a:screen>

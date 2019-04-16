@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+            function HRMS1040_closeWindow() {
+                $('HRMS1030_new_check_in_screen').close();
+            }
+            
+            //创建新的记录
+            function HRMS1040_createNewLine(){
+                var ds = $('HRMS1040_check_in_grid_ds');
+                var bed_number = $('HRMS1040_check_in_ds').data[0].get('bed_number');
+                if(ds.getAll().length>=bed_number)
+                	Aurora.showMessage('','${l:HRMS_RENT_PROCESS_RECORD.TOO_MANY_BEDS}');
+                else
+                	ds.create();
+            }
+            
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1040_check_in_grid_ds" autoQuery="true" model="train_hrms.HRMS1040.hrms_check_in" queryUrl="${/request/@context_path}/autocrud/train_hrms.HRMS1040.hrms_check_in/query?contract_id=${/parameter/@contract_id}" selectable="true">
+                <a:fields>
+                    <a:field name="contract_id" defaultValue="${/parameter/@contract_id}"/>
+                    <a:field name="check_in_staff_id"/>
+                    <a:field name="check_in_status_code"/>
+                    <a:field name="job_number" lovGridHeight="300" lovHeight="460" lovService="train_hrms.HRMS1040.hrms_query_job_number_lov" lovWidth="631" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER" required="true" title="HRMS_HOUSE.CHOOSE_HOUSE">
+                        <a:mapping>
+                            <a:map from="check_in_staff_id" to="check_in_staff_id"/>
+                            <a:map from="check_in_status_code" to="check_in_status_code"/>
+                            <a:map from="job_number" to="job_number"/>
+                            <a:map from="staff_name" to="staff_name"/>
+                            <a:map from="sex" to="sex"/>
+                            <a:map from="department" to="department"/>
+                            <a:map from="base_location" to="base_location"/>
+                            <a:map from="tel" to="tel"/>
+                            <a:map from="email_address" to="email_address"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="sex" prompt="HRMS_CHECK_IN_STAFF.SEX"/>
+                    <a:field name="department" prompt="HRMS_CHECK_IN_STAFF.DEPARTMENT"/>
+                    <a:field name="base_location" prompt="HRMS_CHECK_IN_STAFF.BASE_LOCATION"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="email_address" prompt="HRMS_CHECK_IN_STAFF.EMAIL_ADDRESS"/>
+                    <a:field name="expected_living_to_date" prompt="HRMS_RENT_PROCESS_RECORD.EXPECTED_LIVING_TO_DATE"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1040_check_in_ds" autoQuery="true" queryUrl="${/request/@context_path}/autocrud/train_hrms.HRMS1030.hrms_query_house_contract/query?contract_id=${/parameter/@contract_id}">
+                <a:fields>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE" readOnly="true"/>
+                    <a:field name="start_date" prompt="HRMS_CONTRACT.START_DATE_FROM" readOnly="true"/>
+                    <a:field name="end_date" prompt="HRMS_CONTRACT.START_DATE_TO" readOnly="true"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.CHOOSE_HOUSE" readOnly="true"/>
+                    <a:field name="house_type" prompt="HRMS_HOUSE.HOUSE_TYPE" readOnly="true"/>
+                    <a:field name="house_area" prompt="HRMS_HOUSE.HOUSE_AREA" readOnly="true"/>
+                    <a:field name="bed_number" prompt="HRMS_HOUSE.BED_NUMBER" readOnly="true"/>
+                    <a:field name="landlord_name" prompt="HRMS_HOUSE.LANDLORD_NAME" readOnly="true"/>
+                    <a:field name="landlord_tel" prompt="HRMS_HOUSE.LANDLORD_TEL" readOnly="true"/>
+                    <a:field name="intermediary_name" prompt="HRMS_HOUSE.INTERMEDIARY_NAME" readOnly="true"/>
+                    <a:field name="intermediary_contact" prompt="HRMS_HOUSE.INTERMEDIARY_CONTACT" readOnly="true"/>
+                    <a:field name="intermediary_tel" prompt="HRMS_HOUSE.INTERMEDIARY_TEL" readOnly="true"/>
+                    <a:field name="province" prompt="HRMS_HOUSE.HOUSE_ADDRESS" readOnly="true"/>
+                    <a:field name="city" readOnly="true"/>
+                    <a:field name="house_detail" readOnly="true"/>
+                    <a:field name="house_remark" prompt="HRMS_HOUSE.REMARK" readOnly="true"/>
+                    <a:field name="house_id" prompt="HRMS_HOUSE.HOUSE_ID" readOnly="true"/>
+                    <a:field name="month_rent_fee" prompt="HRMS_CONTRACT.MONTH_RENT_FEE" readOnly="true"/>
+                    <a:field name="rent_period" prompt="HRMS_CONTRACT.RENT_PERIOD" readOnly="true"/>
+                    <a:field name="agency_fee" prompt="HRMS_CONTRACT.AGENCY_FEE" readOnly="true"/>
+                    <a:field name="invoice_tax" prompt="HRMS_CONTRACT.INVOICE_TAX" readOnly="true"/>
+                    <a:field name="total_fee" prompt="HRMS_CONTRACT.TOTAL_FEE" readOnly="true"/>
+                    <a:field name="currency_type" prompt="HRMS_CONTRACT.CURRENCY_TYPE" readOnly="true"/>
+                    <a:field name="currency_type_code" readOnly="true"/>
+                    <a:field name="rent_remark" prompt="HRMS_HOUSE.REMARK" readOnly="true"/>
+                    <a:field name="contract_remark" prompt="HRMS_HOUSE.REMARK" readOnly="true"/>
+                    <a:field name="contract_id" readOnly="true"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton bind="check_in_grid" click="confirm" text="HRMS_HOUSE.SAVE" type="save" width="80"/>
+                <a:toolbarButton click="HRMS1040_closeWindow" text="HRMS_HOUSE.CLOSE" width="80"/>
+            </a:screenTopToolbar>
+            <a:form>
+                <a:hBox labelWidth="100">
+                    <a:textField name="contract_code" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:datePicker name="start_date" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:datePicker name="end_date" bindTarget="HRMS1040_check_in_ds"/>
+                </a:hBox>
+            </a:form>
+            <a:form height="200" title="HRMS_RENT_PROCESS_RECORD.CHECK_IN_STAFF_DATA" width="1000">
+                <a:grid id="check_in_grid" bindTarget="HRMS1040_check_in_grid_ds" height="200" width="985">
+                    <a:toolBar>
+                        <a:button id="add_btn" click="HRMS1040_createNewLine" icon="${/request/@context_path}/images/add.gif" text="HRMS_HOUSE.ADD"/>
+                        <a:button type="delete"/>
+                    </a:toolBar>
+                    <a:columns>
+                        <a:column name="contract_id" hidden="true"/>
+                        <a:column name="check_in_staff_id" hidden="true"/>
+                        <a:column name="check_in_status_code" align="center" hidden="true"/>
+                        <a:column name="job_number" align="center" editor="edit_job_number" maxAdjustWidth="115" width="115"/>
+                        <a:column name="staff_name" align="center" editor="edit_staff_name" maxAdjustWidth="115" width="115"/>
+                        <a:column name="sex" align="center" editor="edit_sex" maxAdjustWidth="100" width="100"/>
+                        <a:column name="department" align="center" editor="edit_department" maxAdjustWidth="115" width="115"/>
+                        <a:column name="base_location" align="center" editor="edit_base_location" maxAdjustWidth="100" width="100"/>
+                        <a:column name="tel" align="center" editor="edit_tel" maxAdjustWidth="115" width="115"/>
+                        <a:column name="email_address" align="center" editor="edit_email_address" maxAdjustWidth="185" width="185"/>
+                        <a:column name="expected_living_to_date" align="center" editor="edit_expected_living_to_date" maxAdjustWidth="114" width="114"/>
+                    </a:columns>
+                    <a:editors>
+                        <a:lov name="job_number" id="edit_job_number" bindTarget="HRMS1040_check_in_grid_ds"/>
+                        <a:textField name="staff_name" id="edit_staff_name" bindTarget="HRMS1040_check_in_grid_ds" readOnly="true"/>
+                        <a:textField name="sex" id="edit_sex" bindTarget="HRMS1040_check_in_grid_ds" readOnly="true"/>
+                        <a:textField name="department" id="edit_department" bindTarget="HRMS1040_check_in_grid_ds" readOnly="true"/>
+                        <a:textField name="base_location" id="edit_base_location" bindTarget="HRMS1040_check_in_grid_ds" readOnly="true"/>
+                        <a:textField name="tel" id="edit_tel" bindTarget="HRMS1040_check_in_grid_ds" readOnly="true"/>
+                        <a:textField name="email_address" id="edit_email_address" bindTarget="HRMS1040_check_in_grid_ds" readOnly="true"/>
+                        <a:datePicker name="expected_living_to_date" id="edit_expected_living_to_date" bindTarget="HRMS1040_check_in_grid_ds"/>
+                    </a:editors>
+                </a:grid>
+            </a:form>
+            <a:form bindTarget="HRMS1040_check_in_ds" title="HRMS_HOUSE.HOUSE_DATA" width="1000">
+                <a:hBox>
+                    <a:textField name="house_abbreviation" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="house_type" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="house_area" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="bed_number" bindTarget="HRMS1040_check_in_ds"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:textField name="landlord_name" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="landlord_tel" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="intermediary_name" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="intermediary_contact" bindTarget="HRMS1040_check_in_ds"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:textField name="intermediary_tel" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="province" bindTarget="HRMS1040_check_in_ds" emptyText="HRMS_HOUSE.PROVINCE"/>
+                    <a:textField name="city" bindTarget="HRMS1040_check_in_ds" emptyText="HRMS_HOUSE.CITY"/>
+                    <a:textField name="house_detail" bindTarget="HRMS1040_check_in_ds" emptyText="HRMS_HOUSE.HOUSE_ADDRESS" width="300"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:textArea name="house_remark" bindTarget="HRMS1040_check_in_ds" height="30" width="380"/>
+                    <a:textField name="house_id" bindTarget="HRMS1040_check_in_ds" hidden="true"/>
+                </a:hBox>
+            </a:form>
+            <a:form bindTarget="HRMS1040_check_in_ds" title="HRMS_CONTRACT.RENT_DATA" width="1000">
+                <a:hBox>
+                    <a:textField name="month_rent_fee" allowNegative="false" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="rent_period" allowNegative="false" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="agency_fee" allowNegative="false" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="invoice_tax" allowNegative="false" bindTarget="HRMS1040_check_in_ds"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:textField name="total_fee" allowNegative="false" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="currency_type" bindTarget="HRMS1040_check_in_ds"/>
+                    <a:textField name="currency_type_code" bindTarget="HRMS1040_check_in_ds" hidden="true"/>
+                </a:hBox>
+                <a:hBox>
+                    <a:textArea name="rent_remark" bindTarget="HRMS1040_check_in_ds" height="30" width="380"/>
+                </a:hBox>
+            </a:form>
+            <a:form>
+                <a:hBox>
+                    <a:textArea name="contract_remark" bindTarget="HRMS1040_check_in_ds" height="35" width="615"/>
+                    <a:textField name="contract_id" bindTarget="HRMS1040_check_in_ds" hidden="true"/>
+                </a:hBox>
+            </a:form>
+        </a:screenBody>
+    </a:view>
+</a:screen>

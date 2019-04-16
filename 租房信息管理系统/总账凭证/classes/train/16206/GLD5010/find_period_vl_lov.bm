@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D 
+    $Date: 2017-8-8
+    $Revision: 1.0  
+    $Purpose: 总账凭证期间查询
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    a.period_name
+                FROM
+                    gld_periods a
+                WHERE
+                    a.period_year     = 2017 AND
+                    a.period_set_code = 'ZYF' AND
+                    a.adjustment_flag = 'N'
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

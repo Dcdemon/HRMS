@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        contract_id,
+                        contract_code,
+                        TO_CHAR(start_date,'yyyy-mm-dd') AS start_date,
+                        TO_CHAR(end_date,'yyyy-mm-dd') AS end_date,
+                        house_abbreviation,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_TYPE', p_code_value => house_type_code) AS house_type,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BED_NUMBER', p_code_value => bed_number_code) AS bed_number,
+                        living_person,
+                        rest_bed,
+                        landlord_name,
+                        landlord_tel,
+                        intermediary_name,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CONTRACT_STATUS', p_code_value => contract_status_code ) AS contract_status,
+                        contract_status_code,
+                        contract_remark
+                    FROM
+                        hrms_house,
+                        hrms_contract #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="house_id" expression="hrms_house.house_id=hrms_contract.house_id"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation like &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="landlord_name" queryExpression="landlord_name like &apos;%&apos;||${@landlord_name}||&apos;%&apos;"/>
+        <bm:query-field name="landlord_tel" queryExpression="landlord_tel like &apos;%&apos;||${@landlord_tel}||&apos;%&apos;"/>
+        <bm:query-field name="intermediary_name" queryExpression="intermediary_name like &apos;%&apos;||${@intermediary_name}||&apos;%&apos;"/>
+        <bm:query-field name="intermediary_contact" queryExpression="intermediary_contact like &apos;%&apos;||${@intermediary_contact}||&apos;%&apos;"/>
+        <bm:query-field name="start_date_from" queryExpression="start_date &gt;= to_date(${@start_date_from}||&apos; 00:00:00&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;) "/>
+        <bm:query-field name="start_date_to" queryExpression="start_date &lt;= to_date(${@start_date_to}||&apos; 23:59:59&apos;,&apos;yyyy-mm-dd hh24:mi:ss&apos;)"/>
+        <bm:query-field name="house_type" queryExpression="house_type_code=${@house_type_code}"/>
+    </bm:query-fields>
+</bm:model>

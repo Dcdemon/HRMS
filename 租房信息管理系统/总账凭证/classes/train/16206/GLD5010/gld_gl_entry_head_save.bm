@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: Chao.D  
+    $Date: 2017-8-9 下午 
+    $Revision: 1.0  
+    $Purpose: 凭证总表HEAD信息保存
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="insert">
+            <bm:update-sql><![CDATA[
+            begin
+            gld_gl_entry_pkg.gld_gl_entry_head_16206_save(
+                                 ${@gl_entry_head_id},
+                                 ${@gl_entry_code},
+                                 to_date(${@create_date},'yyyy-mm-dd'),
+                                 ${@period},
+                                 ${@attachement},
+                                 ${@currency_name},
+                                 ${@exchange_rate_type},
+                                 ${@exchange_rate},
+                                 ${@head_summary},
+                                 ${/session/@user_id});
+                                 
+            end;]]></bm:update-sql>
+            <bm:parameters>
+                <bm:parameter name="gl_entry_head_id" dataType="java.lang.Long" input="true" inputPath="@gl_entry_head_id" output="true" outputPath="@gl_entry_head_id"/>
+            </bm:parameters>
+        </bm:operation>
+        <bm:operation name="delete">
+            <bm:update-sql><![CDATA[
+            begin
+            gld_gl_entry_pkg.delete_gld_gl_entry_head_16206(
+             			 		 ${@gl_entry_head_id},
+                                 ${/session/@user_id}
+                                 );
+            end;]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="HRMS1050_fee_maintain_screen" url="${/request/@context_path}/modules/train_hrms/HRMS1050/hrms_fee_maintain.screen"/>
+        <script><![CDATA[
+    		function HRMS1050_openNewMaintainScreen(){
+    			new Aurora.Window({
+                    id: 'HRMS1050_new_fee_maintain_screen',
+                    url: $('HRMS1050_fee_maintain_screen').getUrl(),
+                    fullScreen: true
+                });
+    		}
+    		
+    		function HRMS1050_resetQuery() {
+                $('HRMS1050_fee_main_query_ds').reset();
+        	}
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1050_fee_main_fee_item_ds" lookupCode="HRMS_CODING_VALUE_FEE_ITEM"/>
+            <a:dataSet id="HRMS1050_fee_main_fee_source_ds" lookupCode="HRMS_CODING_VALUE_FEE_SOURCE"/>
+            <a:dataSet id="HRMS1050_fee_main_query_ds">
+                <a:fields>
+                    <a:field name="fee_code" prompt="HRMS_FEE.FEE_CODE"/>
+                    <a:field name="fee_item" displayField="code_value_name" options="HRMS1050_fee_main_fee_item_ds" prompt="HRMS_FEE.FEE_ITEM" returnField="fee_item_code" valueField="code_value"/>
+                    <a:field name="fee_source" displayField="code_value_name" options="HRMS1050_fee_main_fee_source_ds" prompt="HRMS_FEE.FEE_SOURCE" returnField="fee_source_code" valueField="code_value"/>
+                    <a:field name="house_abbreviation" lovHeight="510" lovService="train_hrms.HRMS1050.hrms_query_house_abbreviation_lov" lovWidth="500" prompt="HRMS_FEE.FEE_OBJECT">
+                        <a:mapping>
+                            <a:map from="house_abbreviation" to="house_abbreviation"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="creation_date_from" prompt="HRMS_FEE.ADD_DATE_FROM"/>
+                    <a:field name="creation_date_to" prompt="HRMS_FEE.ADD_DATE_TO"/>
+                    <a:field name="start_date_from" prompt="HRMS_FEE.START_DATE_FROM"/>
+                    <a:field name="start_date_to" prompt="HRMS_FEE.START_DATE_TO"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1050_fee_main_result_ds" autoQuery="true" model="train_hrms.HRMS1050.hrms_fee_main" queryDataSet="HRMS1050_fee_main_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="fee_id"/>
+                    <a:field name="fee_house_id"/>
+                    <a:field name="fee_code" prompt="HRMS_FEE.FEE_CODE"/>
+                    <a:field name="fee_item" prompt="HRMS_FEE.FEE_ITEM"/>
+                    <a:field name="fee_source" prompt="HRMS_FEE.FEE_SOURCE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_FEE.FEE_OBJECT"/>
+                    <a:field name="start_date" prompt="HRMS_FEE.START_DATE"/>
+                    <a:field name="end_date" prompt="HRMS_FEE.END_DATE"/>
+                    <a:field name="fee_cost" prompt="HRMS_FEE.FEE_COST"/>
+                    <a:field name="creation_date" prompt="HRMS_FEE.ADD_DATE"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton bind="HRMS1050_fee_main_grid" type="excel" width="80"/>
+                <a:gridButton click="HRMS1050_openNewMaintainScreen" text="HRMS_HOUSE.ADD" width="80"/>
+                <a:gridButton click="HRMS1050_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1050_fee_main_query_ds" resultTarget="HRMS1050_fee_main_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="fee_code" bindTarget="HRMS1050_fee_main_query_ds"/>
+                        <a:comboBox name="fee_item" bindTarget="HRMS1050_fee_main_query_ds"/>
+                        <a:comboBox name="fee_source" bindTarget="HRMS1050_fee_main_query_ds"/>
+                        <a:lov name="house_abbreviation" bindTarget="HRMS1050_fee_main_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:datePicker name="creation_date_from" bindTarget="HRMS1050_fee_main_query_ds"/>
+                        <a:datePicker name="creation_date_to" bindTarget="HRMS1050_fee_main_query_ds"/>
+                        <a:datePicker name="start_date_from" bindTarget="HRMS1050_fee_main_query_ds"/>
+                        <a:datePicker name="start_date_to" bindTarget="HRMS1050_fee_main_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1050_fee_main_grid" bindTarget="HRMS1050_fee_main_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="fee_id" hidden="true"/>
+                    <a:column name="fee_house_id" hidden="true"/>
+                    <a:column name="fee_code" align="center" width="150"/>
+                    <a:column name="fee_item" align="center" width="130"/>
+                    <a:column name="fee_source" align="center" width="100"/>
+                    <a:column name="house_abbreviation" align="center" width="250"/>
+                    <a:column name="start_date" align="center" width="180"/>
+                    <a:column name="end_date" align="center" width="180"/>
+                    <a:column name="fee_cost" align="center" width="104"/>
+                    <a:column name="creation_date" align="center" width="180"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

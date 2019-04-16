@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        'RMB' AS currency_type_code,
+                        contract_id,
+                        contract_code,
+                        TO_CHAR(start_date, 'yyyy-mm-dd') AS start_date,
+                        TO_CHAR(end_date, 'yyyy-mm-dd') AS end_date,
+                        hrms_house.house_id AS house_id,
+                        month_rent_fee,
+                        rent_period,
+                        agency_fee,
+                        invoice_tax,
+                        total_fee,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CURRENCY_TYPE', p_code_value => currency_type_code) AS currency_type,
+                        rent_remark,
+                        contract_remark,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_CONTRACT_STATUS', p_code_value => contract_status_code) AS contract_status,
+                        house_abbreviation,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_TYPE', p_code_value => house_type_code) AS house_type,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_BED_NUMBER', p_code_value => bed_number_code) AS bed_number,
+                        hrms_house_pkg.get_code_value_name(p_code => 'HRMS_CODING_VALUE_HOUSE_AREA', p_code_value => house_area_code) AS house_area,
+                        hrms_house_pkg.get_province_name(p_province_code => house_province_code) AS province,
+                        hrms_house_pkg.get_city_name(p_city_code => house_city_code) AS city,
+                        house_detail,
+                        intermediary_name,
+                        intermediary_contact,
+                        intermediary_tel,
+                        landlord_name,
+                        landlord_tel,
+                        house_remark
+                    FROM
+                        hrms_house,
+                        hrms_contract #WHERE_CLAUSE#
+                    ) v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:data-filters>
+        <bm:data-filter name="house_id" expression="hrms_house.house_id = hrms_contract.house_id"/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="contract_code" queryExpression="contract_code=${@contract_code}"/>
+        <bm:query-field name="house_id" queryExpression="hrms_house.house_id=${@house_id}"/>
+        <bm:query-field name="contract_id" queryExpression="contract_id=${@contract_id}"/>
+    </bm:query-fields>
+</bm:model>

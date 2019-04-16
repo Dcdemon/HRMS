@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        hrms_house.house_id AS house_id,
+                        house_code,
+                        house_abbreviation,
+                        contract_id,
+                        contract_code
+                    FROM
+                        hrms_contract,
+                        hrms_house #WHERE_CLAUSE#
+                    )v
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="house_id" forDisplay="false"/>
+        <bm:field name="house_code" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.HOUSE_CODE"/>
+        <bm:field name="house_abbreviation" forDisplay="true" forQuery="true" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+        <bm:field name="contract_id" forDisplay="false"/>
+        <bm:field name="contract_code" forDisplay="true" forQuery="true" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+    </bm:fields>
+    <bm:data-filters>
+        <bm:data-filter name="house_id" expression="hrms_house.house_id  = hrms_contract.house_id"/>
+        <bm:data-filter name="contract_status_code" expression="contract_status_code = &apos;CONFIRM&apos; "/>
+    </bm:data-filters>
+    <bm:query-fields>
+        <bm:query-field name="house_code" queryExpression="house_code like &apos;%&apos;||${@house_code}||&apos;%&apos;"/>
+        <bm:query-field name="house_abbreviation" queryExpression="house_abbreviation like &apos;%&apos;||${@house_abbreviation}||&apos;%&apos;"/>
+        <bm:query-field name="contract_code" queryExpression="contract_code like &apos;%&apos;||${@contract_code}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+			function HRMS1010_closeWindow() {
+	        	$('HRMS1010_new_house_maintain_screen').close();
+	        }
+	        
+	        //提交
+	        function HRMS1010_maintainSubmit(){
+	            var intermediary_tel = ''+$('HRMS1010_house_maintain_ds').data[0].get('intermediary_tel');
+	            var landlord_tel = ''+$('HRMS1010_house_maintain_ds').data[0].get('landlord_tel');
+	            $('HRMS1010_house_maintain_ds').submit();
+	        }
+	        
+	        //选中省事件
+	        function HRMS1010_onSelectProvince(){
+	            $('HRMS1010_house_maintain_ds').data[0].set('city','');
+	            var new_house_data = $('HRMS1010_house_maintain_ds').data[0];
+	            var province_code = new_house_data.get('province_code');
+	            $('HRMS1010_city_query_ds').setQueryParameter('region_code', province_code);
+	            $('HRMS1010_city_query_ds').query();
+	        }
+		]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1010_house_maintain_house_type_ds" lookupCode="HRMS_CODING_VALUE_HOUSE_TYPE"/>
+            <a:dataSet id="HRMS1010_house_maintain_house_area_ds" lookupCode="HRMS_CODING_VALUE_HOUSE_AREA"/>
+            <a:dataSet id="HRMS1010_house_maintain_bed_number_ds" lookupCode="HRMS_CODING_VALUE_BED_NUMBER"/>
+            <a:dataSet id="HRMS1010_province_query_ds" loadData="true" model="train_hrms.HRMS1010.hrms_get_all_province"/>
+            <a:dataSet id="HRMS1010_city_query_ds" loadData="false" model="train_hrms.HRMS1010.hrms_get_all_city"/>
+            <a:dataSet id="HRMS1010_house_maintain_ds" autoQuery="true" model="train_hrms.HRMS1010.hrms_add_house" queryUrl="${/request/@context_path}/autocrud/train_hrms.HRMS1010.hrms_query_all_house/query?house_id=${/parameter/@house_id}">
+                <a:fields>
+                    <a:field name="house_type" displayField="code_value_name" options="HRMS1010_house_maintain_house_type_ds" prompt="HRMS_HOUSE.HOUSE_TYPE" returnField="house_type_code" valueField="code_value"/>
+                    <a:field name="house_area" displayField="code_value_name" options="HRMS1010_house_maintain_house_area_ds" prompt="HRMS_HOUSE.HOUSE_AREA" returnField="house_area_code" valueField="code_value"/>
+                    <a:field name="bed_number" displayField="code_value_name" options="HRMS1010_house_maintain_bed_number_ds" prompt="HRMS_HOUSE.BED_NUMBER" returnField="bed_number_code" valueField="code_value"/>
+                    <a:field name="intermediary_name" prompt="HRMS_HOUSE.INTERMEDIARY_NAME"/>
+                    <a:field name="intermediary_contact" prompt="HRMS_HOUSE.INTERMEDIARY_CONTACT"/>
+                    <a:field name="intermediary_tel" prompt="HRMS_HOUSE.INTERMEDIARY_TEL"/>
+                    <a:field name="landlord_name" prompt="HRMS_HOUSE.LANDLORD_NAME"/>
+                    <a:field name="landlord_tel" prompt="HRMS_HOUSE.LANDLORD_TEL"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="province" displayField="province_name" options="HRMS1010_province_query_ds" prompt="HRMS_HOUSE.HOUSE_ADDRESS" returnField="province_code" valueField="province_code"/>
+                    <a:field name="city" displayField="city_name" options="HRMS1010_city_query_ds" returnField="city_code" valueField="city_code"/>
+                    <a:field name="house_detail"/>
+                    <a:field name="house_remark" prompt="HRMS_HOUSE.REMARK"/>
+                    <a:field name="house_status_code" defaultValue="FREE"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1010_maintainSubmit" text="HRMS_HOUSE.SAVE" type="save" width="80"/>
+                <a:toolbarButton click="HRMS1010_closeWindow" text="HRMS_HOUSE.CLOSE" width="80"/>
+            </a:screenTopToolbar>
+            <a:form bindTarget="HRMS1010_house_maintain_ds">
+                <a:hBox labelWidth="100">
+                    <a:comboBox name="house_type" bindTarget="HRMS1010_house_maintain_ds"/>
+                    <a:comboBox name="house_area" bindTarget="HRMS1010_house_maintain_ds"/>
+                    <a:comboBox name="bed_number" bindTarget="HRMS1010_house_maintain_ds"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:textField name="intermediary_name" bindTarget="HRMS1010_house_maintain_ds"/>
+                    <a:textField name="intermediary_contact" bindTarget="HRMS1010_house_maintain_ds"/>
+                    <a:numberField name="intermediary_tel" allowDecimals="false" bindTarget="HRMS1010_house_maintain_ds"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:textField name="landlord_name" bindTarget="HRMS1010_house_maintain_ds"/>
+                    <a:numberField name="landlord_tel" allowDecimals="false" bindTarget="HRMS1010_house_maintain_ds"/>
+                    <a:textField name="house_abbreviation" bindTarget="HRMS1010_house_maintain_ds"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:comboBox name="province" bindTarget="HRMS1010_house_maintain_ds" emptyText="HRMS_HOUSE.PROVINCE" width="120">
+                        <a:events>
+                            <a:event name="select" handler="HRMS1010_onSelectProvince"/>
+                        </a:events>
+                    </a:comboBox>
+                    <a:comboBox name="city" bindTarget="HRMS1010_house_maintain_ds" emptyText="HRMS_HOUSE.CITY" width="120"/>
+                    <a:textField name="house_detail" bindTarget="HRMS1010_house_maintain_ds" emptyText="HRMS_HOUSE.HOUSE_ADDRESS" width="360"/>
+                </a:hBox>
+                <a:hBox labelWidth="100">
+                    <a:textArea name="house_remark" bindTarget="HRMS1010_house_maintain_ds" width="400"/>
+                </a:hBox>
+            </a:form>
+        </a:screenBody>
+    </a:view>
+</a:screen>

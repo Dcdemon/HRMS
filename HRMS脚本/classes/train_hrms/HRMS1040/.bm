@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[begin
+  hrms_pkg.insert_new_rent_process_record(p_contract_id => ${@contract_id},
+                                          p_staff_id => ${@check_in_staff_id},
+                                          p_expected_living_to_date => ${@expected_living_to_date},
+                                          p_user_id => ${/session/@user_id});
+end;]]></bm:update-sql>
+            <bm:parameters>
+                <bm:parameter name="contract_id"/>
+                <bm:parameter name="check_in_staff_id"/>
+                <bm:parameter name="expected_living_to_date"/>
+                <bm:parameter inputPath="/session/@user_id"/>
+            </bm:parameters>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

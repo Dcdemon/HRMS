@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+    		function HRMS1090_resetQuery() {
+                $('HRMS1090_staff_payable_report_form_query_ds').reset();
+        	}
+    	]]></script>
+        <a:dataSets>
+            <a:dataSet id="HRMS1090_staff_payable_report_form_query_ds">
+                <a:fields>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="check_in_date_from" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE_FROM"/>
+                    <a:field name="check_in_date_to" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE_TO"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="HRMS1090_staff_payable_report_form_result_ds" autoQuery="true" model="train_hrms.HRMS1090.hrms_staff_payable_report_form" queryDataSet="HRMS1090_staff_payable_report_form_query_ds" selectable="true">
+                <a:fields>
+                    <a:field name="contract_code" prompt="HRMS_CONTRACT.CONTRACT_CODE"/>
+                    <a:field name="house_abbreviation" prompt="HRMS_HOUSE.HOUSE_ABBREVIATION"/>
+                    <a:field name="start_date" prompt="HRMS_CONTRACT.START_DATE"/>
+                    <a:field name="end_date" prompt="HRMS_CONTRACT.END_DATE"/>
+                    <a:field name="job_number" prompt="HRMS_CHECK_IN_STAFF.JOB_NUMBER"/>
+                    <a:field name="staff_name" prompt="HRMS_CHECK_IN_STAFF.STAFF_NAME"/>
+                    <a:field name="tel" prompt="HRMS_CHECK_IN_STAFF.TEL"/>
+                    <a:field name="check_in_date" prompt="HRMS_RENT_PROCESS_RECORD.CHECK_IN_DATE"/>
+                    <a:field name="rent_fee_total" prompt="HRMS_FEE_CLAIM.RENT_FEE_PAYABLE"/>
+                    <a:field name="rent_fee_done" prompt="HRMS_FEE_CLAIM.PAID_RENT_FEE"/>
+                    <a:field name="electricity_fee_total" prompt="HRMS_FEE_CLAIM.ELECTRICITY_FEE_PAYABLE"/>
+                    <a:field name="electricity_fee_done" prompt="HRMS_FEE_CLAIM.PAID_ELECTRICITY_FEE"/>
+                    <a:field name="water_fee_total" prompt="HRMS_FEE_CLAIM.WATER_FEE_PAYABLE"/>
+                    <a:field name="water_fee_done" prompt="HRMS_FEE_CLAIM.PAID_WATER_FEE"/>
+                    <a:field name="tv_fee_total" prompt="HRMS_FEE_CLAIM.TV_FEE_PAYABLE"/>
+                    <a:field name="tv_fee_done" prompt="HRMS_FEE_CLAIM.PAID_TV_FEE"/>
+                    <a:field name="network_fee_total" prompt="HRMS_FEE_CLAIM.NETWORK_FEE_PAYABLE"/>
+                    <a:field name="network_fee_done" prompt="HRMS_FEE_CLAIM.PAID_NETWORK_FEE"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:screenTitle/>
+                <a:gridButton click="HRMS1090_resetQuery" text="HRMS_HOUSE.RESET" width="80"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="HRMS1090_staff_payable_report_form_query_ds" resultTarget="HRMS1090_staff_payable_report_form_result_ds" width="1300">
+                <a:formToolBar>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="contract_code" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                        <a:textField name="house_abbreviation" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                        <a:textField name="job_number" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                        <a:textField name="staff_name" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="tel" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                        <a:datePicker name="check_in_date_from" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                        <a:datePicker name="check_in_date_to" bindTarget="HRMS1090_staff_payable_report_form_query_ds"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="HRMS1090_staff_payable_report_form_grid" bindTarget="HRMS1090_staff_payable_report_form_result_ds" marginHeight="121" navBar="true" width="1300">
+                <a:columns>
+                    <a:column name="contract_code" align="center" width="150"/>
+                    <a:column name="house_abbreviation" align="center" width="100"/>
+                    <a:column name="start_date" align="center" width="100"/>
+                    <a:column name="end_date" align="center" width="100"/>
+                    <a:column name="job_number" align="center" width="100"/>
+                    <a:column name="staff_name" align="center" width="100"/>
+                    <a:column name="tel" align="center" width="100"/>
+                    <a:column name="check_in_date" align="center" width="100"/>
+                    <a:column name="rent_fee_total" align="center" width="100"/>
+                    <a:column name="rent_fee_done" align="center" width="100"/>
+                    <a:column name="electricity_fee_total" align="center" width="100"/>
+                    <a:column name="electricity_fee_done" align="center" width="100"/>
+                    <a:column name="water_fee_total" align="center" width="100"/>
+                    <a:column name="water_fee_done" align="center" width="100"/>
+                    <a:column name="tv_fee_total" align="center" width="100"/>
+                    <a:column name="tv_fee_done" align="center" width="100"/>
+                    <a:column name="network_fee_total" align="center" width="100"/>
+                    <a:column name="network_fee_done" align="center" width="100"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>
